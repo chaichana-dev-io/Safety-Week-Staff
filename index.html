@@ -12,26 +12,11 @@
     body { font-family: 'Kanit', sans-serif; background: var(--bg); }
     .header-section { background: var(--navy); color: white; padding: 40px 0 80px; text-align: center; }
     
-    /* --- ปรับ UI วงรีตามข้อความ --- */
+    /* UI: ปรับปุ่มเลือกหัวข้อเป็นวงรีตามข้อความ */
     .nav-container { margin-top: -50px; display: flex; justify-content: center; }
-    .nav-pills { 
-        background: white; 
-        padding: 6px; 
-        border-radius: 50px; 
-        box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
-        display: inline-flex; /* ทำให้ขนาดหดตามเนื้อหา */
-    }
-    .nav-link { 
-        border-radius: 50px !important; /* วงรี */
-        color: #666; 
-        font-weight: 600; 
-        padding: 10px 20px; 
-        border: none;
-        margin: 0 2px;
-        transition: 0.3s;
-    }
+    .nav-pills { background: white; padding: 6px; border-radius: 50px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+    .nav-link { border-radius: 50px !important; color: #666; font-weight: 600; padding: 10px 22px; border: none; transition: 0.3s; }
     .nav-link.active { background-color: var(--navy) !important; color: white !important; }
-    /* ------------------------ */
 
     .main-card { border-radius: 30px; border: none; box-shadow: 0 15px 40px rgba(0,0,0,0.05); background: white; margin-top: 25px; }
     .input-custom { background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 20px; padding: 15px 25px; font-size: 1.2rem; width: 100%; transition: 0.3s; }
@@ -40,9 +25,7 @@
     .mode-card { cursor: pointer; border: 2px solid #edf2f7; border-radius: 25px; padding: 20px; transition: 0.3s; }
     .active-checkin { border-color: var(--blue); background: #eff6ff; }
     .active-checkout { border-color: var(--red); background: #fef2f2; }
-    #canvas { width: 100%; border-radius: 20px; display: none; background: #000; }
-    .progress { height: 10px; border-radius: 10px; }
-    .stat-box { min-height: 85px; display: flex; flex-direction: column; justify-content: center; }
+    .stat-box { min-height: 90px; display: flex; flex-direction: column; justify-content: center; border: 1px solid #eee; }
   </style>
 </head>
 <body>
@@ -69,10 +52,8 @@
           <div class="col-6"><div id="btnOut" class="mode-card" onclick="setMode('checkout')"><i class="bi bi-box-arrow-left fs-1 text-danger"></i><div class="fw-bold mt-2">CHECK-OUT</div></div></div>
         </div>
         <div id="actionArea" class="d-none">
-          <canvas id="canvas" class="mb-3"></canvas>
-          <button id="cameraBtn" class="btn btn-dark btn-action mb-3" onclick="startCamera()"><i class="bi bi-camera"></i> เปิดกล้องสแกน</button>
-          <input type="text" id="recordId" class="input-custom mb-3" placeholder="รหัสพนักงาน" autocomplete="off">
-          <button class="btn btn-primary btn-action" onclick="submitRecord()">ยืนยัน (Enter)</button>
+          <input type="text" id="recordId" class="input-custom mb-3" placeholder="กรอกรหัสพนักงาน (Enter)">
+          <button class="btn btn-primary btn-action" onclick="submitRecord()">ยืนยัน</button>
         </div>
       </div>
     </div>
@@ -80,69 +61,47 @@
     <div class="tab-pane fade" id="tabEdit">
       <div class="card main-card p-4">
         <div id="editSearchArea">
-          <input type="text" id="editId" class="input-custom mb-3" placeholder="รหัสพนักงาน" autocomplete="off">
-          <button class="btn btn-primary btn-action" onclick="searchUser()">ค้นหาเพื่อแก้ไข (Enter)</button>
+          <input type="text" id="editId" class="input-custom mb-3" placeholder="รหัสพนักงาน (Enter)">
+          <button class="btn btn-primary btn-action" onclick="searchUser()">ค้นหา</button>
         </div>
         <div id="editForm" class="d-none">
-          <h5 class="fw-bold mb-3 text-primary">แก้ไขข้อมูล</h5>
-          <div class="mb-3"><label class="small text-muted">ชื่อ-นามสกุล</label><input type="text" id="nameBox" class="form-control p-3 rounded-4 border-2"></div>
-          <div class="row g-2 mb-3">
-            <div class="col-6"><label class="small text-muted">แผนก</label><input type="text" id="deptBox" class="form-control p-3 rounded-4 border-2"></div>
-            <div class="col-6"><label class="small text-muted">ฝ่าย</label><input type="text" id="sectBox" class="form-control p-3 rounded-4 border-2"></div>
-          </div>
-          <div class="mb-4"><label class="small text-muted">อีเมล</label><input type="email" id="emailBox" class="form-control p-3 rounded-4 border-2"></div>
-          <div class="row g-2">
-            <div class="col-6"><button class="btn btn-light btn-action" onclick="resetEdit()">ยกเลิก (ESC)</button></div>
-            <div class="col-6"><button class="btn btn-primary btn-action" onclick="saveEdit()">บันทึก (Enter)</button></div>
-          </div>
+          <input type="text" id="nameBox" class="form-control mb-2 p-3 rounded-4" placeholder="ชื่อ">
+          <input type="text" id="deptBox" class="form-control mb-4 p-3 rounded-4" placeholder="แผนก">
+          <button class="btn btn-primary btn-action mb-2" onclick="saveEdit()">บันทึก (Enter)</button>
+          <button class="btn btn-light btn-action" onclick="resetEdit()">ยกเลิก (Esc)</button>
         </div>
       </div>
     </div>
 
     <div class="tab-pane fade" id="tabMon">
-      <div class="row row-cols-3 g-2 mt-4" id="statGrid">
-        </div>
-      
-      <div class="card main-card p-4 mt-4">
-        <div class="d-flex gap-2 mb-3">
-          <input type="text" id="monId" class="input-custom" placeholder="รหัสพนักงาน หรือ AAA" autocomplete="off">
-          <button class="btn btn-outline-secondary rounded-4 px-3" onclick="clearMon()"><i class="bi bi-x-lg"></i></button>
-        </div>
-        <button class="btn btn-primary btn-action mb-3" onclick="getMonitor()">ค้นหาความคืบหน้า (Enter)</button>
-        <div id="monResult"></div>
+      <div class="row row-cols-3 g-2 mt-4" id="statGrid"></div>
+      <div class="card main-card p-4 mt-4 text-center">
+        <input type="text" id="monId" class="input-custom mb-3" placeholder="รหัสพนักงาน (Enter)">
+        <button class="btn btn-primary btn-action" onclick="getMonitor()">ดูความคืบหน้า</button>
+        <div id="monResult" class="mt-3"></div>
       </div>
     </div>
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-const API_URL = "https://script.google.com/macros/s/AKfycbwmKyT2RfHuGJStA4gL4xKYopwVH49nGY2uCb4tfsEuN75ZDhYnWovEhWO8JV09do6DhQ/exec";
-let video = document.createElement("video"), canvas = document.getElementById("canvas").getContext("2d"), currentMode = null, scanning = false;
+const API_URL = "https://script.google.com/macros/s/AKfycbzRWmMRxNIVIbHR3oXePkDCSIWmoxdY3IjBIL4WfNrbBxT-8fHXUcuKCPemagXoZa9-eQ/exec";
 
-// --- 2. ระบบ Keyboard Shortcuts (Enter & ESC) ---
+// --- Shortcut System (Enter & Esc) ---
 document.addEventListener('keydown', (e) => {
   const activeTab = document.querySelector('.tab-pane.active').id;
-
   if (e.key === 'Enter') {
     if (activeTab === 'tabRec') submitRecord();
-    if (activeTab === 'tabEdit') {
-        const isEditing = !document.getElementById('editForm').classList.contains('d-none');
-        isEditing ? saveEdit() : searchUser();
-    }
+    if (activeTab === 'tabEdit') (document.getElementById('editForm').classList.contains('d-none')) ? searchUser() : saveEdit();
     if (activeTab === 'tabMon') getMonitor();
   }
-
   if (e.key === 'Escape') {
-    if (activeTab === 'tabRec') {
-        document.getElementById('recordId').value = '';
-        stopCamera();
-    }
+    if (activeTab === 'tabRec') { document.getElementById('recordId').value = ''; }
     if (activeTab === 'tabEdit') resetEdit();
-    if (activeTab === 'tabMon') clearMon();
+    if (activeTab === 'tabMon') { document.getElementById('monId').value = ''; document.getElementById('monResult').innerHTML = ''; }
   }
 });
 
@@ -154,6 +113,23 @@ function setMode(m) {
   document.getElementById('btnOut').className = 'mode-card ' + (m==='checkout'?'active-checkout':'');
   document.getElementById('actionArea').classList.remove('d-none');
   document.getElementById('recordId').focus();
+}
+
+async function updateStats() {
+  document.getElementById('statGrid').innerHTML = '<div class="col-12 text-center small">กำลังโหลด...</div>';
+  const res = await fetch(`${API_URL}?action=getBaseMonitor`);
+  const r = await res.json();
+  if (r.success) {
+    document.getElementById('statGrid').innerHTML = r.data.map((item, i) => `
+      <div class="col text-center">
+        <div class="bg-white p-2 rounded-4 shadow-sm stat-box">
+          <div style="font-size:0.7rem" class="text-muted fw-bold">ฐานที่ ${i+1}</div>
+          <div class="fw-bold text-primary fs-4">${item.passed}</div>
+          <div style="font-size:0.55rem" class="text-truncate">${item.baseName}</div>
+        </div>
+      </div>
+    `).join('');
+  }
 }
 
 // --- RECORD LOGIC ---
@@ -218,106 +194,7 @@ function resetEdit() {
   document.getElementById('editId').value = '';
   document.getElementById('editId').focus();
 }
-
-// --- 3. MONITOR LOGIC (ปรับฐาน 1-9 จาก Master_Dashboard F-N) ---
-async function updateStats() {
-  document.getElementById('statGrid').innerHTML = '<div class="col-12 text-center small text-muted">กำลังโหลด...</div>';
-  try {
-    const res = await fetch(`${API_URL}?action=getBaseMonitor`);
-    const r = await res.json();
-    if (r.success) {
-      // r.data ควรมี 9 รายการ ที่ส่งมาจากคอลัมน์ F-N ของ Master_Dashboard
-      let html = "";
-      for (let i = 0; i < 9; i++) {
-        const item = r.data[i] || { baseName: `ฐานที่ ${i+1}`, passed: 0 };
-        html += `
-          <div class="col text-center">
-            <div class="bg-white p-2 rounded-4 shadow-sm border stat-box">
-              <div style="font-size:0.75rem" class="text-muted fw-bold">ฐานที่ ${i+1}</div>
-              <div class="fw-bold text-primary fs-4">${item.passed || 0}</div>
-              <div style="font-size:0.6rem" class="text-truncate px-1">${item.baseName}</div>
-            </div>
-          </div>`;
-      }
-      document.getElementById('statGrid').innerHTML = html;
-    }
-  } catch(e) { 
-      document.getElementById('statGrid').innerHTML = '<div class="col-12 text-center text-danger">โหลดข้อมูลล้มเหลว</div>';
-  }
-}
-
-async function getMonitor() {
-  let id = document.getElementById('monId').value.trim();
-  if (!id) return;
-  if (id.toUpperCase() === 'AAA') {
-    const res = await fetch(`${API_URL}?action=getAllProgress`); 
-    const r = await res.json();
-    let h = `<div class="table-responsive"><table class="table table-sm small mt-3"><thead><tr><th>ชื่อ</th><th>ฐาน</th></tr></thead><tbody>`;
-    r.data.forEach(p => {
-      h += `<tr><td>${p.name}</td><td><div class="progress"><div class="progress-bar bg-success" style="width:${(p.pass/9)*100}%"></div></div></td></tr>`;
-    });
-    h += `</tbody></table></div>`;
-    document.getElementById('monResult').innerHTML = h;
-    return;
-  }
-  id = formatID(id);
-  const res = await fetch(`${API_URL}?action=searchUser&query=${id}`);
-  const r = await res.json();
-  if (r.success) {
-    document.getElementById('monResult').innerHTML = `
-      <div class="p-3 bg-light rounded-4 mt-3">
-        <h6 class="mb-1">${r.name}</h6>
-        <p class="small text-muted mb-2">รหัส: ${r.empId} | ฐานเริ่ม: ${r.startBase || '-'}</p>
-        <div class="progress"><div class="progress-bar bg-primary" style="width:${(r.passedCount/9)*100}%"></div></div>
-        <div class="text-end small mt-1">ผ่านแล้ว ${r.passedCount || 0}/9 ฐาน</div>
-      </div>`;
-  }
-}
-
-function clearMon() {
-  document.getElementById('monId').value = '';
-  document.getElementById('monResult').innerHTML = '';
-  document.getElementById('monId').focus();
-}
-
-// --- CAMERA LOGIC ---
-async function startCamera() {
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
-    scanning = true;
-    video.srcObject = stream;
-    video.setAttribute("playsinline", true);
-    video.play();
-    document.getElementById('canvas').style.display = 'block';
-    document.getElementById('cameraBtn').classList.add('d-none');
-    requestAnimationFrame(tick);
-  } catch (e) { Swal.fire('Error', 'ไม่สามารถเข้าถึงกล้องได้', 'error'); }
-}
-
-function stopCamera() {
-  scanning = false;
-  if (video.srcObject) video.srcObject.getTracks().forEach(t => t.stop());
-  document.getElementById('canvas').style.display = 'none';
-  document.getElementById('cameraBtn').classList.remove('d-none');
-}
-
-function tick() {
-  if (video.readyState === video.HAVE_ENOUGH_DATA && scanning) {
-    let el = document.getElementById('canvas');
-    el.height = video.videoHeight; el.width = video.videoWidth;
-    canvas.drawImage(video, 0, 0, el.width, el.height);
-    let c = jsQR(canvas.getImageData(0, 0, el.width, el.height).data, el.width, el.height);
-    if (c) {
-      document.getElementById('recordId').value = c.data;
-      stopCamera();
-      submitRecord();
-    }
-  }
-  if (scanning) requestAnimationFrame(tick);
-}
-
-function resetAll() { stopCamera(); document.getElementById('recordId').value = ''; }
-setInterval(updateStats, 60000); 
+function resetAll() { document.getElementById('recordId').value = ''; }
 </script>
 </body>
 </html>
