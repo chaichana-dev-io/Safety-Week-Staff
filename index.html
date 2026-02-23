@@ -2,30 +2,24 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>STAFF SYSTEM 2026</title>
   <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
   <style>
-    :root { --navy: #1a237e; --blue: #3b82f6; --red: #dc3545; --bg: #f4f7fe; }
-    body { font-family: 'Kanit', sans-serif; background: var(--bg); overflow-x: hidden; }
-    .header-section { background: var(--navy); color: white; padding: 40px 0 80px; text-align: center; }
-    .nav-container { margin-top: -50px; display: flex; justify-content: center; }
-    .nav-pills { background: white; padding: 6px; border-radius: 50px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); display: inline-flex; }
-    .nav-link { border-radius: 50px !important; color: #666; font-weight: 600; padding: 10px 22px; border: none; transition: 0.3s; margin: 0 2px; }
-    .nav-link.active { background-color: var(--navy) !important; color: white !important; }
-    .main-card { border-radius: 30px; border: none; box-shadow: 0 15px 40px rgba(0,0,0,0.05); background: white; margin-top: 25px; }
-    .input-custom { background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 20px; padding: 15px 25px; font-size: 1.2rem; width: 100%; transition: 0.3s; }
-    .input-custom:focus { border-color: var(--blue); outline: none; background: white; }
-    .btn-action { border-radius: 20px; padding: 15px; font-weight: 600; transition: 0.2s; border: none; width: 100%; }
-    .mode-card { cursor: pointer; border: 2px solid #edf2f7; border-radius: 25px; padding: 20px; transition: 0.3s; }
-    .active-checkin { border-color: var(--blue); background: #eff6ff; }
-    .active-checkout { border-color: var(--red); background: #fef2f2; }
-    #canvas { width: 100%; border-radius: 20px; display: none; background: #000; transform: scaleX(-1); }
-    .stat-box { min-height: 100px; display: flex; flex-direction: column; justify-content: center; border: 1px solid #eee; transition: 0.3s; background: white; border-radius: 20px !important; }
-    .progress { height: 10px; border-radius: 10px; background-color: #e9ecef; }
+    :root { --navy: #1a237e; --bg: #f4f7fe; }
+    body { font-family: 'Kanit', sans-serif; background: var(--bg); }
+    .header-section { background: var(--navy); color: white; padding: 30px 0 60px; text-align: center; }
+    .nav-container { margin-top: -30px; display: flex; justify-content: center; }
+    .nav-pills { background: white; padding: 5px; border-radius: 50px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+    .nav-link.active { background-color: var(--navy) !important; }
+    .main-card { border-radius: 20px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.05); background: white; }
+    #canvas { width: 100%; border-radius: 15px; display: none; transform: scaleX(-1); background: #000; }
+    .stat-box { border-radius: 15px; background: white; padding: 10px; border-top: 4px solid var(--navy); min-height: 85px; transition: 0.3s; }
+    .clickable-name { color: #1a237e; text-decoration: underline; cursor: pointer; font-weight: 500; }
     #loadingOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.7); display: none; justify-content: center; align-items: center; z-index: 9999; }
+    .progress { height: 10px; border-radius: 10px; }
   </style>
 </head>
 <body>
@@ -33,70 +27,58 @@
 <div id="loadingOverlay"><div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"></div></div>
 
 <div class="header-section">
-  <h2 class="fw-bold">STAFF SYSTEM</h2>
-  <p class="opacity-75">Safety Week Activity 2026</p>
+  <h4 class="fw-bold">STAFF SYSTEM 2026</h4>
 </div>
 
 <div class="container mb-5">
-  <div class="nav-container">
+  <div class="nav-container mb-4">
     <ul class="nav nav-pills" id="mainTabs">
-      <li class="nav-item"><button class="nav-link active" data-bs-toggle="pill" data-bs-target="#tabRec" onclick="resetAll()"><i class="bi bi-qr-code-scan"></i> บันทึก</button></li>
-      <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tabEdit" onclick="resetEdit()"><i class="bi bi-pencil-square"></i> แก้ไข</button></li>
-      <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tabMon" onclick="updateStats()"><i class="bi bi-grid"></i> Monitor</button></li>
+      <li class="nav-item"><button class="nav-link active" data-bs-toggle="pill" data-bs-target="#tabRec">บันทึก</button></li>
+      <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tabMon" onclick="updateStats()">Monitor</button></li>
     </ul>
   </div>
 
   <div class="tab-content">
     <div class="tab-pane fade show active" id="tabRec">
       <div class="card main-card p-4">
-        <div class="row g-3 mb-4 text-center">
-          <div class="col-6"><div id="btnIn" class="mode-card" onclick="setMode('checkin')"><i class="bi bi-box-arrow-in-right fs-1 text-primary"></i><div class="fw-bold mt-2">CHECK-IN</div></div></div>
-          <div class="col-6"><div id="btnOut" class="mode-card" onclick="setMode('checkout')"><i class="bi bi-box-arrow-left fs-1 text-danger"></i><div class="fw-bold mt-2">CHECK-OUT</div></div></div>
+        <div class="row g-2 mb-4">
+          <div class="col-6"><button id="btnIn" class="btn btn-outline-primary w-100 p-3 fw-bold" onclick="setMode('checkin')">CHECK-IN</button></div>
+          <div class="col-6"><button id="btnOut" class="btn btn-outline-danger w-100 p-3 fw-bold" onclick="setMode('checkout')">CHECK-OUT</button></div>
         </div>
         <div id="actionArea" class="d-none text-center">
           <canvas id="canvas" class="mb-3"></canvas>
-          <button id="cameraBtn" class="btn btn-dark btn-action mb-3" onclick="startCamera()"><i class="bi bi-camera"></i> เปิดกล้องสแกน QR</button>
-          <input type="text" id="recordId" class="input-custom mb-3" placeholder="กรอกรหัส หรือ สแกน QR" autocomplete="off">
-          <button class="btn btn-primary btn-action" onclick="submitRecord()">ยืนยันบันทึก (Enter)</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="tab-pane fade" id="tabEdit">
-      <div class="card main-card p-4">
-        <div id="editSearchArea">
-          <input type="text" id="editId" class="input-custom mb-3" placeholder="กรอกรหัสพนักงานที่ต้องการแก้ไข" autocomplete="off">
-          <button class="btn btn-primary btn-action" onclick="searchUser()">ค้นหา (Enter)</button>
-        </div>
-        <div id="editForm" class="d-none">
-          <h5 class="fw-bold mb-3 text-primary">แก้ไขข้อมูลพนักงาน</h5>
-          <div class="mb-3"><label class="small text-muted">ชื่อ-นามสกุล</label><input type="text" id="nameBox" class="form-control p-3 rounded-4 border-2"></div>
-          <div class="row g-2 mb-3">
-            <div class="col-6"><label class="small text-muted">แผนก</label><input type="text" id="deptBox" class="form-control p-3 rounded-4 border-2"></div>
-            <div class="col-6"><label class="small text-muted">ฝ่าย</label><input type="text" id="sectBox" class="form-control p-3 rounded-4 border-2"></div>
-          </div>
-          <div class="mb-4"><label class="small text-muted">อีเมล</label><input type="email" id="emailBox" class="form-control p-3 rounded-4 border-2"></div>
-          <div class="row g-2">
-            <div class="col-6"><button class="btn btn-light btn-action" onclick="resetEdit()">ยกเลิก (ESC)</button></div>
-            <div class="col-6"><button class="btn btn-primary btn-action" onclick="saveEdit()">บันทึกข้อมูล (Enter)</button></div>
-          </div>
+          <button id="cameraBtn" class="btn btn-dark w-100 mb-3" onclick="startCamera()"><i class="bi bi-camera"></i> เปิดกล้องสแกน QR</button>
+          <input type="text" id="recordId" class="form-control form-control-lg mb-3 text-center border-2" placeholder="รหัสพนักงาน" autocomplete="off">
+          <button class="btn btn-primary w-100 p-3 fw-bold" onclick="submitRecord()">บันทึกข้อมูล (Enter)</button>
         </div>
       </div>
     </div>
 
     <div class="tab-pane fade" id="tabMon">
-      <div class="text-center mt-4"><h6 class="fw-bold text-navy mb-3"><i class="bi bi-people-fill"></i> จำนวนสมาชิกแยกตามกลุ่ม (Group 1-9)</h6></div>
-      <div class="row row-cols-3 g-2" id="statGrid"></div>
-      <hr class="my-4 opacity-25">
+      <div class="row row-cols-3 g-2 mb-4" id="statGrid"></div>
+      
       <div class="card main-card p-4 text-center">
-        <h6 class="fw-bold mb-3 text-muted">ตรวจสอบสถานะรายบุคคล</h6>
-        <div class="d-flex gap-2 mb-3">
-          <input type="text" id="monId" class="input-custom" placeholder="รหัสพนักงาน" autocomplete="off">
-          <button class="btn btn-outline-secondary rounded-4 px-3" onclick="clearMon()"><i class="bi bi-x-lg"></i></button>
+        <h6 class="text-muted mb-3">ตรวจสอบสถานะรายบุคคล / AAA</h6>
+        <div class="input-group mb-3 shadow-sm rounded-pill overflow-hidden">
+          <input type="text" id="monId" class="form-control border-0 ps-4" placeholder="รหัสพนักงาน หรือ AAA">
+          <button class="btn btn-light border-0 px-3" onclick="clearMon()"><i class="bi bi-x-lg"></i></button>
+          <button class="btn btn-primary border-0 px-4" onclick="getMonitor()"><i class="bi bi-search"></i></button>
         </div>
-        <button class="btn btn-primary btn-action" onclick="getMonitor()">ค้นหาข้อมูล (Enter)</button>
-        <div id="monResult" class="mt-3"></div>
+        <div id="monResult" class="mt-2"></div>
       </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="infoModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg rounded-4">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title fw-bold text-navy">ข้อมูลพนักงาน</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="modalBody">
+        </div>
     </div>
   </div>
 </div>
@@ -106,7 +88,8 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-const API_URL = "https://script.google.com/macros/s/AKfycbxhiVTC0uqVOsvGuUqfUX3rJkAnS2htEODju9MvaMuCo45PTTW5QDgUjCzFJCYrautScA/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbw5V7OS_mvjcEbRTDVNJ-8qbULZIo0azEb_ku-i82TcYHwPnlAb3X9V52agtyIDpvsTYw/exec";
+const myModal = new bootstrap.Modal(document.getElementById('infoModal'));
 
 let video = document.createElement("video");
 let canvasElement = document.getElementById("canvas");
@@ -114,40 +97,24 @@ let canvas = canvasElement.getContext("2d", { willReadFrequently: true });
 let currentMode = null;
 let scanning = false;
 
-const showLoad = (show) => document.getElementById('loadingOverlay').style.display = show ? 'flex' : 'none';
-const formatID = (id) => {
-  let s = id.toString().trim();
-  if (/^\d+$/.test(s) && s.length <= 6) return s.padStart(6, '0');
-  return s.toUpperCase();
-};
+const showLoad = (s) => document.getElementById('loadingOverlay').style.display = s ? 'flex' : 'none';
 
 function setMode(m) {
   currentMode = m;
-  document.getElementById('btnIn').className = 'mode-card ' + (m==='checkin'?'active-checkin':'');
-  document.getElementById('btnOut').className = 'mode-card ' + (m==='checkout'?'active-checkout':'');
+  document.getElementById('btnIn').className = m === 'checkin' ? 'btn btn-primary w-100 p-3 fw-bold' : 'btn btn-outline-primary w-100 p-3 fw-bold';
+  document.getElementById('btnOut').className = m === 'checkout' ? 'btn btn-danger w-100 p-3 fw-bold' : 'btn btn-outline-danger w-100 p-3 fw-bold';
   document.getElementById('actionArea').classList.remove('d-none');
   document.getElementById('recordId').focus();
 }
 
-// --- ฟังก์ชันกล้อง ---
 async function startCamera() {
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
-    scanning = true;
-    video.srcObject = stream;
-    video.setAttribute("playsinline", true);
-    video.play();
-    canvasElement.style.display = 'block';
-    document.getElementById('cameraBtn').classList.add('d-none');
-    requestAnimationFrame(tick);
-  } catch (e) { Swal.fire('Error', 'เปิดกล้องไม่ได้', 'error'); }
-}
-
-function stopCamera() {
-  scanning = false;
-  if (video.srcObject) video.srcObject.getTracks().forEach(t => t.stop());
-  canvasElement.style.display = 'none';
-  document.getElementById('cameraBtn').classList.remove('d-none');
+  const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+  scanning = true;
+  video.srcObject = stream;
+  video.play();
+  canvasElement.style.display = 'block';
+  document.getElementById('cameraBtn').classList.add('d-none');
+  requestAnimationFrame(tick);
 }
 
 function tick() {
@@ -158,123 +125,119 @@ function tick() {
     let code = jsQR(canvas.getImageData(0, 0, canvasElement.width, canvasElement.height).data, canvasElement.width, canvasElement.height);
     if (code) {
       document.getElementById('recordId').value = code.data;
-      stopCamera();
+      scanning = false;
+      canvasElement.style.display = 'none';
+      video.srcObject.getTracks().forEach(t => t.stop());
+      document.getElementById('cameraBtn').classList.remove('d-none');
       submitRecord();
     }
   }
   if (scanning) requestAnimationFrame(tick);
 }
 
-// --- ฟังก์ชันหลัก ---
 async function submitRecord() {
-  let rawVal = document.getElementById('recordId').value.trim();
-  if (!rawVal || !currentMode) return;
-  const id = formatID(rawVal);
+  const id = document.getElementById('recordId').value;
+  if(!id || !currentMode) return;
   showLoad(true);
-  const action = (currentMode === 'checkin') ? 'confirmCheckIn' : 'checkoutAction';
-  try {
-    const res = await fetch(`${API_URL}?action=${action}&empId=${encodeURIComponent(id)}`);
-    const r = await res.json();
-    showLoad(false);
-    Swal.fire({ icon: r.success?'success':'warning', title: r.success?'สำเร็จ':'แจ้งเตือน', html: r.message.replace(/\n/g, '<br>') });
-    document.getElementById('recordId').value = '';
-    updateStats();
-  } catch (e) { showLoad(false); }
+  const action = currentMode === 'checkin' ? 'confirmCheckIn' : 'checkoutAction';
+  const res = await fetch(`${API_URL}?action=${action}&empId=${id}`);
+  const r = await res.json();
+  showLoad(false);
+  Swal.fire(r.success?'สำเร็จ':'แจ้งเตือน', r.message, r.success?'success':'warning');
+  document.getElementById('recordId').value = '';
 }
 
 async function updateStats() {
-  const grid = document.getElementById('statGrid');
   try {
     const res = await fetch(`${API_URL}?action=getBaseMonitor`);
     const r = await res.json();
     if (r.success) {
-      grid.innerHTML = r.data.map(item => `
-        <div class="col"><div class="stat-box shadow-sm border text-center" style="border-top: 4px solid var(--navy) !important">
-          <div class="small fw-bold text-muted">${item.baseName}</div>
-          <div class="fs-2 fw-bold text-primary">${item.passed || 0}</div>
-          <div style="font-size:0.6rem" class="text-muted">คน</div>
-        </div></div>`).join('');
+      document.getElementById('statGrid').innerHTML = r.data.map(i => `
+        <div class="col text-center">
+          <div class="stat-box shadow-sm">
+            <small class="text-muted fw-bold">${i.baseName}</small>
+            <div class="fs-3 fw-bold text-primary">${i.passed}</div>
+          </div>
+        </div>`).join('');
     }
-  } catch (e) { console.error("Update Stats Error"); }
+  } catch(e) {}
 }
 
 async function getMonitor() {
-  let rawVal = document.getElementById('monId').value.trim();
-  if (!rawVal) return;
-  const resultDiv = document.getElementById('monResult');
-
-  if (rawVal.toUpperCase() === 'AAA') {
+  const val = document.getElementById('monId').value.trim();
+  if(!val) return;
+  
+  if (val.toUpperCase() === 'AAA') {
     showLoad(true);
-    try {
-      const res = await fetch(`${API_URL}?action=getAllProgress`);
-      const r = await res.json();
-      showLoad(false);
-      if (r.success) {
-        let h = `<div class="table-responsive mt-3"><table class="table table-sm table-hover border" style="font-size:0.75rem"><thead class="table-light"><tr><th>ชื่อ</th><th class="text-center">ฐาน</th></tr></thead><tbody>`;
-        r.data.forEach(p => {
-          h += `<tr><td class="text-start">${p.name}</td><td><div class="progress" style="height:8px"><div class="progress-bar ${p.pass >= 9 ? 'bg-success':'bg-primary'}" style="width:${(p.pass/9)*100}%"></div></div><div class="text-end" style="font-size:0.6rem">${p.pass}/9</div></td></tr>`;
-        });
-        h += `</tbody></table></div>`;
-        resultDiv.innerHTML = h;
-      }
-    } catch (e) { showLoad(false); }
+    const res = await fetch(`${API_URL}?action=getAllProgress`);
+    const r = await res.json();
+    showLoad(false);
+    let h = '<div class="table-responsive"><table class="table table-hover mt-3" style="font-size:13px"><thead class="table-light"><tr><th>ชื่อพนักงาน</th><th>ความคืบหน้า</th></tr></thead><tbody>';
+    r.data.forEach(p => {
+      h += `<tr><td class="text-start"><span class="clickable-name" onclick="viewDetail('${p.empId}')">${p.name}</span></td>
+            <td><div class="progress"><div class="progress-bar ${p.pass==9?'bg-success':'bg-primary'}" style="width:${(p.pass/9)*100}%"></div></div><small>${p.pass}/9</small></td></tr>`;
+    });
+    document.getElementById('monResult').innerHTML = h + '</tbody></table></div>';
     return;
   }
 
-  const id = formatID(rawVal);
   showLoad(true);
-  try {
-    const res = await fetch(`${API_URL}?action=searchUser&query=${encodeURIComponent(id)}`);
-    const r = await res.json();
-    showLoad(false);
-    if (r.success) {
-      resultDiv.innerHTML = `<div class="p-3 bg-light rounded-4 mt-3 text-start border shadow-sm"><strong>${r.name}</strong><br><span class="badge bg-navy">${r.group}</span><div class="progress my-2"><div class="progress-bar" style="width:${(r.passedCount/9)*100}%"></div></div><div class="text-end small">${r.passedCount}/9 ฐาน</div></div>`;
-    } else { resultDiv.innerHTML = '<div class="text-danger mt-2">ไม่พบข้อมูล</div>'; }
-  } catch (e) { showLoad(false); }
-}
-
-async function searchUser() {
-  let rawVal = document.getElementById('editId').value.trim();
-  if (!rawVal) return;
-  const id = formatID(rawVal);
-  showLoad(true);
-  try {
-    const res = await fetch(`${API_URL}?action=searchUser&query=${encodeURIComponent(id)}`);
-    const r = await res.json();
-    showLoad(false);
-    if (r.success) {
-      document.getElementById('nameBox').value = r.name;
-      document.getElementById('deptBox').value = r.dept;
-      document.getElementById('sectBox').value = r.sect;
-      document.getElementById('emailBox').value = r.email;
-      document.getElementById('editId').dataset.realId = r.empId;
-      document.getElementById('editSearchArea').classList.add('d-none');
-      document.getElementById('editForm').classList.remove('d-none');
-    }
-  } catch (e) { showLoad(false); }
-}
-
-async function saveEdit() {
-  const params = new URLSearchParams({ action:'updateUser', empId: document.getElementById('editId').dataset.realId, name: document.getElementById('nameBox').value, dept: document.getElementById('deptBox').value, sect: document.getElementById('sectBox').value, email: document.getElementById('emailBox').value });
-  showLoad(true);
-  try { await fetch(`${API_URL}?${params.toString()}`); showLoad(false); Swal.fire('สำเร็จ', 'อัปเดตแล้ว', 'success'); resetEdit(); } catch (e) { showLoad(false); }
-}
-
-function clearMon() { document.getElementById('monId').value = ''; document.getElementById('monResult').innerHTML = ''; updateStats(); }
-function resetEdit() { document.getElementById('editSearchArea').classList.remove('d-none'); document.getElementById('editForm').classList.add('d-none'); document.getElementById('editId').value = ''; }
-function resetAll() { stopCamera(); document.getElementById('recordId').value = ''; }
-
-document.addEventListener('keydown', (e) => {
-  const activeTab = document.querySelector('.tab-pane.active').id;
-  if (e.key === 'Enter') {
-    if (activeTab === 'tabRec') submitRecord();
-    if (activeTab === 'tabEdit') (document.getElementById('editForm').classList.contains('d-none')) ? searchUser() : saveEdit();
-    if (activeTab === 'tabMon') getMonitor();
+  const res = await fetch(`${API_URL}?action=searchUser&query=${val}`);
+  const r = await res.json();
+  showLoad(false);
+  if(r.success) {
+    document.getElementById('monResult').innerHTML = `
+      <div class="p-3 bg-light rounded-4 border text-start mt-3 shadow-sm">
+        <h6 class="fw-bold text-navy">${r.name} <span class="badge bg-primary ms-1">[${r.group}]</span></h6>
+        <div class="progress mt-2"><div class="progress-bar" style="width:${(r.passedCount/9)*100}%"></div></div>
+        <small class="text-muted">ทำกิจกรรมผ่านไปแล้ว ${r.passedCount}/9 ฐาน</small>
+      </div>`;
+  } else {
+    document.getElementById('monResult').innerHTML = '<div class="text-danger mt-3">ไม่พบข้อมูลพนักงาน</div>';
   }
-  if (e.key === 'Escape') { if (activeTab === 'tabMon') clearMon(); if (activeTab === 'tabEdit') resetEdit(); if (activeTab === 'tabRec') resetAll(); }
+}
+
+async function viewDetail(empId) {
+  showLoad(true);
+  try {
+    const res = await fetch(`${API_URL}?action=searchUser&query=${empId}`);
+    const r = await res.json();
+    showLoad(false);
+    document.getElementById('modalBody').innerHTML = `
+      <div class="text-center mb-3">
+        <div class="fs-4 fw-bold text-navy">${r.name}</div>
+        <span class="badge bg-primary fs-6">${r.group}</span>
+      </div>
+      <table class="table table-sm border-0">
+        <tr><td class="text-muted">รหัส:</td><td class="fw-bold">${r.empId}</td></tr>
+        <tr><td class="text-muted">ฝ่าย:</td><td class="fw-bold">${r.sect}</td></tr>
+        <tr><td class="text-muted">ความคืบหน้า:</td><td class="fw-bold">${r.passedCount}/9 ฐาน</td></tr>
+      </table>
+      <div class="progress mb-3"><div class="progress-bar bg-success" style="width:${(r.passedCount/9)*100}%"></div></div>
+      <button class="btn btn-navy w-100" data-bs-dismiss="modal" style="background:#1a237e; color:white;">ปิดหน้าต่าง (ESC)</button>
+    `;
+    myModal.show();
+  } catch(e) { showLoad(false); }
+}
+
+function clearMon() {
+  document.getElementById('monId').value = '';
+  document.getElementById('monResult').innerHTML = '';
+}
+
+// Key Event ESC and Enter
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    myModal.hide();
+  }
+  if (e.key === 'Enter') {
+    const activeTab = document.querySelector('.nav-link.active').innerText;
+    if(activeTab === 'บันทึก') submitRecord();
+    else getMonitor();
+  }
 });
 
-setInterval(() => { if (document.querySelector('#tabMon.active')) { updateStats(); if (document.getElementById('monId').value.toUpperCase()==='AAA') getMonitor(); } }, 60000);
+setInterval(() => { if(document.querySelector('#tabMon.active')) { updateStats(); if(document.getElementById('monId').value.toUpperCase()==='AAA') getMonitor(); } }, 60000);
 window.onload = updateStats;
 </script>
 </body>
