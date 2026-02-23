@@ -40,8 +40,9 @@
     .active-checkin { border-color: var(--blue); background: #eff6ff; }
     .active-checkout { border-color: #ef4444; background: #fef2f2; }
 
+    /* รายละเอียดฐานใน Modal */
     .progress { height: 10px; border-radius: 10px; background-color: #e2e8f0; overflow: hidden; }
-    .base-card { display: flex; align-items: center; justify-content: space-between; padding: 10px 15px; border-radius: 12px; margin-bottom: 8px; border: 1px solid #eee; }
+    .base-card { display: flex; align-items: center; justify-content: space-between; padding: 10px 15px; border-radius: 12px; margin-bottom: 8px; border: 1px solid #eee; transition: 0.2s; }
     .base-passed { background-color: #e8f5e9; border-color: #c8e6c9; }
     
     #loadingOverlay { position: fixed; inset: 0; background: rgba(255,255,255,0.8); display: none; justify-content: center; align-items: center; z-index: 9999; backdrop-filter: blur(2px); }
@@ -215,27 +216,36 @@ async function viewDetail(empId) {
     const res = await fetch(`${API_URL}?action=searchUser&query=${empId}`);
     const r = await res.json();
     showLoad(false);
-    const baseDisplayNames = (r.baseNames && r.baseNames.length >= 9) ? r.baseNames : globalBaseNames;
+    
     let displayGroup = r.group || "ยังไม่เช็คอิน";
     displayGroup = displayGroup.replace(/Group/g, "ฐาน");
+
     let baseHtml = '';
-    baseDisplayNames.forEach((name, index) => {
-      const isPassed = r.details && r.details[index] === "ผ่าน";
-      baseHtml += `<div class="base-card ${isPassed ? 'base-passed' : ''}">
-          <div class="small fw-bold text-navy">ฐานที่ ${index+1}. ${name}</div>
-          <span>${isPassed ? '✅' : '⚪'}</span>
+    // แสดงฐานที่ 1 - ฐานที่ 9
+    for (let i = 0; i < 9; i++) {
+      const isPassed = r.details && r.details[i] === "ผ่าน";
+      baseHtml += `
+        <div class="base-card ${isPassed ? 'base-passed' : ''}">
+          <div class="small fw-bold text-navy">ฐานที่ ${i + 1}</div>
+          <span>${isPassed ? '<i class="bi bi-check-circle-fill text-success"></i>' : '<i class="bi bi-circle text-muted"></i>'}</span>
         </div>`;
-    });
+    }
+
     document.getElementById('modalBody').innerHTML = `
       <div class="text-center mb-3">
-        <h6 class="fw-bold mb-0 text-navy">${r.name}</h6>
-        <small class="badge bg-primary rounded-pill">ID: ${r.empId} | ประจำ: ${displayGroup}</small>
+        <h6 class="fw-bold mb-1 text-navy" style="font-size: 1.1rem;">${r.name}</h6>
+        <div class="d-flex justify-content-center gap-2 mb-2">
+           <span class="badge bg-primary rounded-pill">ID: ${r.empId}</span>
+           <span class="badge bg-secondary rounded-pill">${displayGroup}</span>
+        </div>
       </div>
       <div class="mb-3">
         <div class="d-flex justify-content-between small mb-1"><b>ความคืบหน้า</b><span>${r.passedCount}/9 ฐาน</span></div>
-        <div class="progress"><div class="progress-bar bg-success" style="width:${(r.passedCount/9)*100}%"></div></div>
+        <div class="progress"><div class="progress-bar bg-success progress-bar-striped progress-bar-animated" style="width:${(r.passedCount/9)*100}%"></div></div>
       </div>
-      <div style="max-height: 280px; overflow-y: auto; padding-right:5px; border-top: 1px solid #eee; padding-top: 10px;">${baseHtml}</div>
+      <div style="max-height: 300px; overflow-y: auto; padding-right:5px; border-top: 1px solid #eee; padding-top: 10px;">
+        ${baseHtml}
+      </div>
       <button class="btn btn-navy w-100 text-white rounded-pill mt-3 shadow-sm" data-bs-dismiss="modal" style="background:var(--navy)">ปิด (Esc)</button>`;
     infoModal.show();
   } catch(e) { showLoad(false); }
