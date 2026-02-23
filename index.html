@@ -25,20 +25,13 @@
     .input-group-custom { background: #fff; border: 1px solid #e2e8f0; border-radius: 20px; padding: 5px 5px 5px 20px; display: flex; align-items: center; }
     .input-group-custom input { border: none; outline: none; width: 100%; font-size: 1.1rem; }
     .btn-action { background: var(--blue-light); color: white; border-radius: 15px; padding: 12px 25px; border: none; font-weight: 600; }
-    .stat-box { background: white; border-radius: 20px; padding: 12px; border: 1px solid #edf2f7; text-align: center; }
+    .stat-box { background: white; border-radius: 20px; padding: 12px; border: 1px solid #edf2f7; text-align: center; min-height: 100px; display: flex; flex-direction: column; justify-content: center; }
     .stat-value { font-size: 1.4rem; font-weight: 700; color: var(--navy); }
-    .progress-circle { width: 100px; height: 100px; border-radius: 50%; background: conic-gradient(var(--blue-light) var(--p), #edf2f7 0); display: flex; align-items: center; justify-content: center; margin: 15px auto; position: relative; }
-    .progress-circle::before { content: ""; position: absolute; width: 85px; height: 85px; background: white; border-radius: 50%; }
-    .progress-text { position: relative; font-size: 1rem; font-weight: 700; }
     #canvas { width: 100%; border-radius: 20px; display: none; background: #000; margin-bottom: 10px; }
     .locked { opacity: 0.3; pointer-events: none; filter: grayscale(1); }
-    .modal-content { border-radius: 30px; border: none; }
-    .table-aaa { cursor: pointer; }
   </style>
 </head>
 <body>
-
-  <script>const API_URL = "https://script.google.com/macros/s/AKfycbzD0uVtGiWYcyYhHYPBdksCxbgqlO1YBM7ALzH2LxKCNQfzJ-9VmCywby8yh8OGo1Je/exec";</script>
 
   <div class="header-section">
     <h3 class="fw-bold">STAFF PORTAL</h3>
@@ -66,7 +59,7 @@
             <canvas id="canvas"></canvas>
             <button id="scanBtn" class="btn btn-action w-100 mb-3 rounded-pill" onclick="startCamera()">เปิดกล้องสแกน</button>
             <div class="input-group-custom">
-              <input type="text" id="recordId" placeholder="รหัสพนักงาน" autocomplete="off">
+              <input type="text" id="recordId" placeholder="รหัสพนักงาน / REG-ID" autocomplete="off">
               <button id="recSubBtn" class="btn-action bg-dark" onclick="submitRecord()">บันทึก</button>
             </div>
           </div>
@@ -74,13 +67,9 @@
       </div>
 
       <div class="tab-pane fade" id="tabMon">
-        <div class="row row-cols-3 g-2 mt-3 mb-3" id="statGrid"></div>
-        <div class="card main-card p-4">
-          <div class="input-group-custom mb-3">
-            <input type="text" id="monId" placeholder="รหัสพนักงาน" autocomplete="off">
-            <button id="monBtn" class="btn-action" onclick="getMonitor()">ค้นหา</button>
-          </div>
-          <div id="monResult"></div>
+        <h6 class="mt-4 mb-3 fw-bold"><i class="bi bi-graph-up-arrow me-2"></i>ยอดผู้ผ่านกิจกรรมรายฐาน</h6>
+        <div class="row row-cols-3 g-2 mb-3" id="statGrid">
+          <div class="col-12 text-center p-5 text-muted small">กดที่แท็บ Monitor เพื่ออัปเดตข้อมูล</div>
         </div>
       </div>
 
@@ -91,37 +80,155 @@
             <button id="editSearchBtn" class="btn-action" onclick="searchUser()">ค้นหา</button>
           </div>
           <div id="editForm" class="d-none">
-            <input type="hidden" id="rowNum"><div class="mb-2"><label class="small text-muted">ชื่อ-นามสกุล</label><input type="text" id="nameBox" class="form-control rounded-3 border-0 bg-light p-3"></div>
-            <div class="row g-2 mb-2"><div class="col-6"><label class="small text-muted">แผนก</label><input type="text" id="deptBox" class="form-control rounded-3 border-0 bg-light p-3"></div><div class="col-6"><label class="small text-muted">ฝ่าย</label><input type="text" id="sectBox" class="form-control rounded-3 border-0 bg-light p-3"></div></div>
+            <div class="mb-2"><label class="small text-muted">ชื่อ-นามสกุล</label><input type="text" id="nameBox" class="form-control rounded-3 border-0 bg-light p-3"></div>
+            <div class="row g-2 mb-2">
+              <div class="col-6"><label class="small text-muted">แผนก</label><input type="text" id="deptBox" class="form-control rounded-3 border-0 bg-light p-3"></div>
+              <div class="col-6"><label class="small text-muted">ฝ่าย</label><input type="text" id="sectBox" class="form-control rounded-3 border-0 bg-light p-3"></div>
+            </div>
             <div class="mb-4"><label class="small text-muted">อีเมล</label><input type="email" id="emailBox" class="form-control rounded-3 border-0 bg-light p-3"></div>
-            <button id="editSaveBtn" class="btn btn-action w-100 py-3" onclick="saveEdit()">บันทึกข้อมูล</button>
+            <button id="editSaveBtn" class="btn btn-action w-100 py-3" onclick="saveEdit()">บันทึกการแก้ไข</button>
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <div class="modal fade" id="infoModal" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-body p-5 text-center" id="modalContent"></div></div></div></div>
-
   <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
   <script>
-    let video = document.createElement("video"), canvas = document.getElementById("canvas").getContext("2d"), currentMode = null, scanning = false, infoModal = new bootstrap.Modal(document.getElementById('infoModal'));
-    function setMode(m){ currentMode=m; document.getElementById('recordCard').className='card main-card p-4 '+(m==='checkin'?'card-checkin':'card-checkout'); document.getElementById('btnIn').className='mode-card p-3 '+(m==='checkin'?'active-checkin':''); document.getElementById('btnOut').className='mode-card p-3 '+(m==='checkout'?'active-checkout':''); document.getElementById('recordAction').classList.remove('locked'); document.getElementById('recordId').focus(); }
-    async function callAPI(p,b){ const btn=document.getElementById(b); btn.disabled=true; let old=btn.innerHTML; btn.innerHTML='<span class="spinner-border spinner-border-sm"></span>'; try{ const res=await fetch(API_URL,{method:'POST',body:JSON.stringify(p)}); btn.disabled=false; btn.innerHTML=old; return await res.json(); }catch(e){ btn.disabled=false; btn.innerHTML=old; return null; } }
-    async function submitRecord(){ let id=document.getElementById('recordId').value.trim(); if(!id||!currentMode)return; const r=await callAPI({action:'staffAction',id:id,type:currentMode},'recSubBtn'); Swal.fire({icon:r.success?'success':'error',title:r.msg,timer:1000,showConfirmButton:false}); document.getElementById('recordId').value=''; document.getElementById('recordId').focus(); }
-    async function startCamera(){ try{ const s=await navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"}}); scanning=true; video.srcObject=s; video.setAttribute("playsinline",true); video.play(); document.getElementById('canvas').style.display='block'; document.getElementById('scanBtn').style.display='none'; document.getElementById('stopBtn').style.display='block'; requestAnimationFrame(tick); }catch(e){}}
-    function stopCamera(){ scanning=false; if(video.srcObject)video.srcObject.getTracks().forEach(t=>t.stop()); document.getElementById('canvas').style.display='none'; document.getElementById('scanBtn').style.display='block'; document.getElementById('stopBtn').style.display='none'; }
-    function tick(){ if(video.readyState===video.HAVE_ENOUGH_DATA&&scanning){ let el=document.getElementById('canvas'); el.height=video.videoHeight; el.width=video.videoWidth; canvas.drawImage(video,0,0,el.width,el.height); let c=jsQR(canvas.getImageData(0,0,el.width,el.height).data,el.width,el.height); if(c){ document.getElementById('recordId').value=c.data; stopCamera(); submitRecord(); }} if(scanning)requestAnimationFrame(tick); }
-    async function getMonitor(tid=null){ let id=tid||document.getElementById('monId').value.trim(); if(!id)return; const r=await callAPI({action:'monitor',id:id},'monBtn'); if(!r)return; if(r.type==='AAA'){ let h='<table class="table small table-aaa"><tbody>'+r.list.map(p=>`<tr onclick="getMonitor('${p.id}')"><td>${p.name}<br><small>${p.id}</small></td><td class="text-end fw-bold text-primary">${p.progress}/9</td></tr>`).join('')+'</tbody></table>'; document.getElementById('monResult').innerHTML=h; }else{ let h=`<h4 class="fw-bold mb-4">${r.name}</h4><div class="progress-circle" style="--p:${Math.round(r.progress/r.total*100)}%"><div class="progress-text">${r.progress}/${r.total}</div></div><div class="badge bg-light text-success p-2 px-4 mt-2">สถานีถัดไป: ${r.nextBase}</div>`; if(tid){document.getElementById('modalContent').innerHTML=h; infoModal.show();}else{document.getElementById('monResult').innerHTML=h;} } document.getElementById('monId').value=''; }
-    async function updateStats(){ const res=await fetch(`${API_URL}?action=getStats`); const s=await res.json(); let h=''; for(let i=1;i<=9;i++)h+=`<div class="col"><div class="stat-box"><div style="font-size:0.7rem;" class="text-muted">ฐาน ${i}</div><div class="stat-value">${s["Base"+i]||0}</div></div></div>`; document.getElementById('statGrid').innerHTML=h; }
-    async function searchUser(){ const r=await callAPI({action:'searchUser',id:document.getElementById('editId').value},'editSearchBtn'); if(r){ ['rowNum','nameBox','deptBox','sectBox','emailBox'].forEach((k,i)=>document.getElementById(k).value=Object.values(r)[i]); document.getElementById('searchBox').classList.add('d-none'); document.getElementById('editForm').classList.remove('d-none'); } document.getElementById('editId').value=''; }
-    async function saveEdit(){ const d={row:document.getElementById('rowNum').value,name:document.getElementById('nameBox').value,dept:document.getElementById('deptBox').value,sect:document.getElementById('sectBox').value,email:document.getElementById('emailBox').value}; const r=await callAPI({action:'updateUser',formData:d},'editSaveBtn'); if(r.success){Swal.fire({icon:'success',title:'สำเร็จ',timer:1000,showConfirmButton:false}); resetEdit();} }
+    const API_URL = "https://script.google.com/macros/s/AKfycbzKLBZMo9yGQwooc6psla5e4l73waMhplKsDVA3hQMKZo82jJInBD95WQk3tsFbqiA03A/exec";
+    let video = document.createElement("video"), canvas = document.getElementById("canvas").getContext("2d"), currentMode = null, scanning = false;
+
+    function setMode(m){ 
+      currentMode=m; 
+      document.getElementById('recordCard').className='card main-card p-4 '+(m==='checkin'?'card-checkin':'card-checkout'); 
+      document.getElementById('btnIn').className='mode-card p-3 '+(m==='checkin'?'active-checkin':''); 
+      document.getElementById('btnOut').className='mode-card p-3 '+(m==='checkout'?'active-checkout':''); 
+      document.getElementById('recordAction').classList.remove('locked'); 
+      document.getElementById('recordId').focus(); 
+    }
+
+    async function submitRecord(){
+      let id = document.getElementById('recordId').value.trim();
+      if(!id || !currentMode) return;
+      
+      const btn = document.getElementById('recSubBtn');
+      btn.disabled = true;
+      
+      // เลือก action ตาม mode (checkin -> confirmCheckIn)
+      const action = (currentMode === 'checkin') ? 'confirmCheckIn' : 'checkoutAction';
+      
+      try {
+        const res = await fetch(`${API_URL}?action=${action}&empId=${id}`);
+        const r = await res.json();
+        
+        if(r.success) {
+          let htmlMsg = r.message;
+          if(r.startAt) htmlMsg += `<br><h4 class="text-primary mt-2">ฐานเริ่ม: ${r.startAt}</h4>`;
+          
+          Swal.fire({ icon: 'success', title: 'สำเร็จ', html: htmlMsg, timer: 3000 });
+        } else {
+          Swal.fire({ icon: 'error', title: 'ไม่สำเร็จ', text: r.message });
+        }
+      } catch(e) {
+        Swal.fire({ icon: 'error', title: 'Error', text: 'ติดต่อเซิร์ฟเวอร์ไม่ได้' });
+      }
+      btn.disabled = false;
+      document.getElementById('recordId').value = '';
+    }
+
+    async function updateStats(){
+      const grid = document.getElementById('statGrid');
+      grid.innerHTML = '<div class="col-12 text-center p-4"><span class="spinner-border spinner-border-sm"></span> กำลังอัปเดต...</div>';
+      try {
+        const res = await fetch(`${API_URL}?action=getBaseMonitor`);
+        const r = await res.json();
+        if(r.success) {
+          grid.innerHTML = r.data.map(item => `
+            <div class="col">
+              <div class="stat-box">
+                <div style="font-size:0.65rem;" class="text-muted text-truncate px-1">${item.baseName}</div>
+                <div class="stat-value">${item.passed}</div>
+                <div style="font-size:0.6rem;" class="text-success fw-bold">ผ่านแล้ว</div>
+              </div>
+            </div>
+          `).join('');
+        }
+      } catch(e) { grid.innerHTML = 'โหลดข้อมูลไม่สำเร็จ'; }
+    }
+
+    async function searchUser(){
+      const id = document.getElementById('editId').value.trim();
+      if(!id) return;
+      const btn = document.getElementById('editSearchBtn');
+      btn.disabled = true;
+      try {
+        const res = await fetch(`${API_URL}?action=searchUser&query=${id}`);
+        const r = await res.json();
+        if(r.success) {
+          document.getElementById('nameBox').value = r.name || '';
+          document.getElementById('deptBox').value = r.dept || '';
+          document.getElementById('sectBox').value = r.sect || '';
+          document.getElementById('emailBox').value = r.email || '';
+          document.getElementById('editId').dataset.empId = r.empId;
+          document.getElementById('searchBox').classList.add('d-none');
+          document.getElementById('editForm').classList.remove('d-none');
+        } else { Swal.fire({ icon: 'warning', title: 'ไม่พบข้อมูล' }); }
+      } catch(e) {}
+      btn.disabled = false;
+    }
+
+    async function saveEdit(){
+      const id = document.getElementById('editId').dataset.empId;
+      const params = new URLSearchParams({
+        action: 'updateUser',
+        empId: id,
+        name: document.getElementById('nameBox').value,
+        dept: document.getElementById('deptBox').value,
+        sect: document.getElementById('sectBox').value,
+        email: document.getElementById('emailBox').value
+      });
+      try {
+        const res = await fetch(`${API_URL}?${params.toString()}`);
+        const r = await res.json();
+        if(r.success) {
+          Swal.fire({ icon: 'success', title: 'อัปเดตสำเร็จ', timer: 1500 });
+          resetEdit();
+        }
+      } catch(e) {}
+    }
+
+    // --- ส่วนกล้องสแกน ---
+    async function startCamera(){
+      try {
+        const s = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+        scanning = true; video.srcObject = s; video.setAttribute("playsinline", true); video.play();
+        document.getElementById('canvas').style.display='block';
+        document.getElementById('scanBtn').style.display='none';
+        document.getElementById('stopBtn').style.display='block';
+        requestAnimationFrame(tick);
+      } catch(e) { Swal.fire('เปิดกล้องไม่ได้','โปรดอนุญาตสิทธิ์การใช้กล้อง','error'); }
+    }
+    function stopCamera(){
+      scanning = false; if(video.srcObject) video.srcObject.getTracks().forEach(t=>t.stop());
+      document.getElementById('canvas').style.display='none';
+      document.getElementById('scanBtn').style.display='block';
+      document.getElementById('stopBtn').style.display='none';
+    }
+    function tick(){
+      if(video.readyState === video.HAVE_ENOUGH_DATA && scanning){
+        let el = document.getElementById('canvas');
+        el.height = video.videoHeight; el.width = video.videoWidth;
+        canvas.drawImage(video, 0, 0, el.width, el.height);
+        let c = jsQR(canvas.getImageData(0, 0, el.width, el.height).data, el.width, el.height);
+        if(c){ document.getElementById('recordId').value = c.data; stopCamera(); submitRecord(); }
+      }
+      if(scanning) requestAnimationFrame(tick);
+    }
     function resetEdit(){ document.getElementById('searchBox').classList.remove('d-none'); document.getElementById('editForm').classList.add('d-none'); document.getElementById('editId').value=''; }
-    function resetAll(){ stopCamera(); document.getElementById('monResult').innerHTML=''; ['recordId','monId','editId'].forEach(id=>document.getElementById(id).value=''); }
-    document.addEventListener('keydown',(e)=>{ if(e.key==='Enter'){ const act=document.querySelector('.tab-pane.active').id; if(act==='tabRec')submitRecord(); if(act==='tabMon')getMonitor(); if(act==='tabEdit')searchUser(); } if(e.key==='Escape'){infoModal.hide();resetAll();} });
+    function resetAll(){ stopCamera(); }
   </script>
 </body>
 </html>
