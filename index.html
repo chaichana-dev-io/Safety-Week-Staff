@@ -3,59 +3,63 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>STAFF SYSTEM 2026</title>
-  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
+  <title>STAFF SYSTEM - Safety Week 2026</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
   <style>
-    :root { --navy: #1a237e; --blue: #3b82f6; --bg: #f0f2f5; --card-shadow: 0 4px 20px rgba(0,0,0,0.08); }
-    body { font-family: 'Kanit', sans-serif; background: var(--bg); color: #333; }
+    :root { --navy: #1a237e; --blue: #3b82f6; --bg: #f0f2f5; }
     
-    /* Header & Nav */
-    .header-section { background: linear-gradient(135deg, #1a237e 0%, #283593 100%); color: white; padding: 30px 0 60px; text-align: center; }
+    body { 
+      font-family: 'Sarabun', sans-serif; /* เปลี่ยนเป็น Sarabun */
+      background: var(--bg); 
+      color: #333; 
+      -webkit-tap-highlight-color: transparent; 
+    }
+    
+    .header-section { 
+      background: linear-gradient(135deg, #1a237e 0%, #283593 100%); 
+      color: white; 
+      padding: 30px 0 60px; 
+      text-align: center; 
+    }
+    .header-section h5 { font-weight: 700; letter-spacing: 1px; margin-bottom: 5px; }
+    .header-section p { font-size: 0.9rem; opacity: 0.9; font-weight: 400; margin-bottom: 0; }
+    
     .nav-container { margin-top: -35px; display: flex; justify-content: center; }
-    .nav-pills { background: white; padding: 5px; border-radius: 50px; box-shadow: var(--card-shadow); }
-    .nav-link { border-radius: 50px !important; color: #555; font-weight: 500; padding: 8px 20px; }
-    .nav-link.active { background-color: var(--navy) !important; }
+    .nav-pills { background: white; padding: 5px; border-radius: 50px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+    .nav-link { border-radius: 50px !important; color: #555; font-weight: 600; padding: 8px 20px; font-size: 0.95rem; }
+    .nav-link.active { background-color: var(--navy) !important; color: white !important; }
 
-    /* Compact Dashboard 3x3 */
-    .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 20px; }
-    .stat-box { background: white; padding: 10px 5px; border-radius: 15px; text-align: center; border-bottom: 3px solid var(--navy); box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-    .stat-box .label { font-size: 0.7rem; color: #666; font-weight: 600; display: block; }
-    .stat-box .value { font-size: 1.4rem; font-weight: 700; color: var(--navy); line-height: 1.2; }
-    .stat-box .unit { font-size: 0.6rem; color: #999; }
+    .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin: 15px 0; }
+    .stat-box { background: white; padding: 8px 4px; border-radius: 12px; text-align: center; border-bottom: 3px solid var(--navy); box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+    .stat-box .label { font-size: 0.75rem; color: #666; font-weight: 600; display: block; }
+    .stat-box .value { font-size: 1.4rem; font-weight: 700; color: var(--navy); line-height: 1.1; }
 
-    /* Cards & Inputs */
-    .main-card { border-radius: 20px; border: none; box-shadow: var(--card-shadow); background: white; margin-top: 15px; overflow: hidden; }
-    .input-custom { background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 15px; padding: 12px 15px; font-size: 1rem; width: 100%; transition: 0.3s; }
-    .input-custom:focus { border-color: var(--blue); outline: none; background: white; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
+    .main-card { border-radius: 20px; border: none; box-shadow: 0 4px 20px rgba(0,0,0,0.08); background: white; margin-top: 10px; }
+    .input-custom { background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 12px; padding: 10px; font-size: 1.1rem; width: 100%; text-align: center; transition: 0.3s; font-family: 'Sarabun', sans-serif; }
+    .input-custom:focus { border-color: var(--blue); outline: none; background: white; }
     
-    /* Buttons */
-    .btn-action { border-radius: 15px; padding: 12px; font-weight: 600; border: none; transition: 0.2s; }
-    .mode-card { cursor: pointer; border: 2px solid #f1f5f9; border-radius: 20px; padding: 15px; transition: 0.3s; background: #fff; }
+    .btn-action { border-radius: 12px; padding: 10px; font-weight: 600; border: none; font-size: 1rem; }
+    .mode-card { cursor: pointer; border: 2px solid #f1f5f9; border-radius: 18px; padding: 12px; background: #fff; transition: 0.2s; }
     .active-checkin { border-color: var(--blue); background: #eff6ff; }
     .active-checkout { border-color: #ef4444; background: #fef2f2; }
     
-    /* Table AAA */
-    .table-aaa { font-size: 0.85rem; }
-    .clickable-name { color: var(--navy); text-decoration: none; font-weight: 600; cursor: pointer; border-bottom: 1px dashed var(--navy); }
-    .progress { height: 8px; border-radius: 10px; background-color: #e2e8f0; }
+    .table-hover tbody tr { cursor: pointer; transition: 0.2s; }
+    .table-hover tbody tr:hover { background-color: #f8f9fa; }
+    .progress { height: 8px; border-radius: 10px; background-color: #e2e8f0; overflow: hidden; }
 
-    /* Modal */
-    .modal-content { border-radius: 25px; border: none; }
-    .modal-header { border-bottom: none; padding-top: 25px; }
-
-    #loadingOverlay { position: fixed; inset: 0; background: rgba(255,255,255,0.8); display: none; justify-content: center; align-items: center; z-index: 9999; backdrop-filter: blur(3px); }
-    #canvas { width: 100%; border-radius: 15px; display: none; background: #000; transform: scaleX(-1); }
+    #loadingOverlay { position: fixed; inset: 0; background: rgba(255,255,255,0.8); display: none; justify-content: center; align-items: center; z-index: 9999; backdrop-filter: blur(2px); }
+    #canvas { width: 100%; border-radius: 12px; display: none; background: #000; transform: scaleX(-1); margin-bottom: 10px; }
   </style>
 </head>
 <body>
 
-<div id="loadingOverlay"><div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"></div></div>
+<div id="loadingOverlay"><div class="spinner-border text-primary"></div></div>
 
 <div class="header-section">
-  <h4 class="fw-bold mb-1">STAFF SYSTEM 2026</h4>
-  <p class="small opacity-75 mb-0">Safety Week Activity Management</p>
+  <h5>STAFF SYSTEM</h5>
+  <p>Safety Week 2026</p>
 </div>
 
 <div class="container mb-5">
@@ -63,57 +67,57 @@
     <ul class="nav nav-pills" id="mainTabs">
       <li class="nav-item"><button class="nav-link active" data-bs-toggle="pill" data-bs-target="#tabRec" onclick="resetAll()"><i class="bi bi-qr-code-scan"></i> บันทึก</button></li>
       <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tabEdit" onclick="resetEdit()"><i class="bi bi-pencil-square"></i> แก้ไข</button></li>
-      <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tabMon" onclick="updateStats()"><i class="bi bi-bar-chart-fill"></i> Monitor</button></li>
+      <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tabMon" onclick="updateStats()"><i class="bi bi-search"></i> Monitor</button></li>
     </ul>
   </div>
 
   <div class="tab-content">
     <div class="tab-pane fade show active" id="tabRec">
-      <div class="card main-card p-4">
-        <div class="row g-2 mb-4">
-          <div class="col-6"><div id="btnIn" class="mode-card text-center" onclick="setMode('checkin')"><i class="bi bi-box-arrow-in-right fs-2 text-primary"></i><div class="small fw-bold mt-1">CHECK-IN</div></div></div>
-          <div class="col-6"><div id="btnOut" class="mode-card text-center" onclick="setMode('checkout')"><i class="bi bi-box-arrow-left fs-2 text-danger"></i><div class="small fw-bold mt-1">CHECK-OUT</div></div></div>
+      <div class="card main-card p-3">
+        <div class="row g-2 mb-3">
+          <div class="col-6"><div id="btnIn" class="mode-card text-center" onclick="setMode('checkin')"><i class="bi bi-box-arrow-in-right fs-3 text-primary"></i><div class="small fw-bold">CHECK-IN</div></div></div>
+          <div class="col-6"><div id="btnOut" class="mode-card text-center" onclick="setMode('checkout')"><i class="bi bi-box-arrow-left fs-3 text-danger"></i><div class="small fw-bold">CHECK-OUT</div></div></div>
         </div>
         <div id="actionArea" class="d-none text-center">
-          <canvas id="canvas" class="mb-3"></canvas>
-          <button id="cameraBtn" class="btn btn-dark w-100 btn-action mb-3" onclick="startCamera()"><i class="bi bi-camera"></i> เปิดกล้องสแกน</button>
-          <input type="text" id="recordId" class="input-custom mb-3 text-center" placeholder="กรอกรหัส หรือ สแกน QR">
+          <canvas id="canvas"></canvas>
+          <button id="cameraBtn" class="btn btn-dark w-100 btn-action mb-2" onclick="startCamera()"><i class="bi bi-camera"></i> เปิดสแกน QR</button>
+          <input type="text" id="recordId" class="input-custom mb-2" placeholder="สแกนหรือระบุรหัสพนักงาน" autocomplete="off">
           <button class="btn btn-primary w-100 btn-action" onclick="submitRecord()">ยืนยันบันทึก</button>
         </div>
       </div>
     </div>
 
     <div class="tab-pane fade" id="tabEdit">
-      <div class="card main-card p-4">
+      <div class="card main-card p-3">
         <div id="editSearchArea">
-          <input type="text" id="editId" class="input-custom mb-3" placeholder="รหัสพนักงานที่ต้องการแก้ไข">
-          <button class="btn btn-primary w-100 btn-action" onclick="searchUserForEdit()">ค้นหา (Enter)</button>
+          <input type="text" id="editId" class="input-custom mb-2" placeholder="รหัสพนักงานที่ต้องการแก้ไข" autocomplete="off">
+          <button class="btn btn-primary w-100 btn-action" onclick="searchUserForEdit()">ค้นหาข้อมูล</button>
         </div>
         <div id="editForm" class="d-none">
-          <h6 class="fw-bold mb-3"><i class="bi bi-person-gear"></i> แก้ไขข้อมูลพนักงาน</h6>
-          <div class="mb-2"><label class="small text-muted">ชื่อ-นามสกุล</label><input type="text" id="nameBox" class="form-control rounded-3"></div>
+          <h6 class="fw-bold mb-3 border-bottom pb-2">แก้ไขข้อมูลพนักงาน</h6>
+          <div class="mb-2"><label class="small text-muted">ชื่อ-นามสกุล</label><input type="text" id="nameBox" class="form-control" autocomplete="off"></div>
           <div class="row g-2 mb-2">
-            <div class="col-6"><label class="small text-muted">แผนก</label><input type="text" id="deptBox" class="form-control rounded-3"></div>
-            <div class="col-6"><label class="small text-muted">ฝ่าย</label><input type="text" id="sectBox" class="form-control rounded-3"></div>
+            <div class="col-6"><label class="small text-muted">แผนก</label><input type="text" id="deptBox" class="form-control" autocomplete="off"></div>
+            <div class="col-6"><label class="small text-muted">ฝ่าย</label><input type="text" id="sectBox" class="form-control" autocomplete="off"></div>
           </div>
-          <div class="mb-4"><label class="small text-muted">อีเมล</label><input type="email" id="emailBox" class="form-control rounded-3"></div>
+          <div class="mb-3"><label class="small text-muted">อีเมล</label><input type="email" id="emailBox" class="form-control" autocomplete="off"></div>
           <div class="row g-2">
-            <div class="col-6"><button class="btn btn-light w-100 btn-action" onclick="resetEdit()">ยกเลิก</button></div>
-            <div class="col-6"><button class="btn btn-primary w-100 btn-action" onclick="saveEdit()">บันทึก</button></div>
+            <div class="col-4"><button class="btn btn-light w-100 btn-action border" onclick="resetEdit()">ยกเลิก</button></div>
+            <div class="col-8"><button class="btn btn-primary w-100 btn-action" onclick="saveEdit()">บันทึกข้อมูล</button></div>
           </div>
         </div>
       </div>
     </div>
 
     <div class="tab-pane fade" id="tabMon">
-      <div class="stat-grid mt-4" id="statGrid"></div>
-      
+      <div class="stat-grid" id="statGrid"></div>
       <div class="card main-card p-3">
-        <div class="d-flex gap-2 mb-3">
-          <input type="text" id="monId" class="input-custom" placeholder="รหัสพนักงาน หรือ AAA">
-          <button class="btn btn-primary px-3 rounded-4" onclick="getMonitor()"><i class="bi bi-search"></i></button>
+        <input type="text" id="monId" class="input-custom mb-2" placeholder="ระบุรหัสพนักงาน" autocomplete="off">
+        <div class="row g-2">
+           <div class="col-8"><button class="btn btn-primary w-100 btn-action" onclick="getMonitor()">ค้นหา</button></div>
+           <div class="col-4"><button class="btn btn-danger w-100 btn-action" onclick="clearMon()">ล้าง</button></div>
         </div>
-        <div id="monResult"></div>
+        <div id="monResult" class="mt-2"></div>
       </div>
     </div>
   </div>
@@ -121,12 +125,8 @@
 
 <div class="modal fade" id="infoModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-sm">
-    <div class="modal-content shadow-lg">
-      <div class="modal-header">
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body text-center" id="modalBody">
-        </div>
+    <div class="modal-content shadow-lg border-0" style="border-radius: 20px;">
+      <div class="modal-body text-center p-4" id="modalBody"></div>
     </div>
   </div>
 </div>
@@ -138,15 +138,27 @@
 <script>
 const API_URL = "https://script.google.com/macros/s/AKfycbw0Fbk2xyKMIm0FNgc0te3Vv02OElcD6JxemAMh2YLDG0xciH4kvjcPj3DRa0UlE60YVg/exec";
 const infoModal = new bootstrap.Modal(document.getElementById('infoModal'));
-
 let video = document.createElement("video");
 let canvasElement = document.getElementById("canvas");
 let canvas = canvasElement.getContext("2d", { willReadFrequently: true });
-let currentMode = null;
-let scanning = false;
-
+let currentMode = null, scanning = false;
 const showLoad = (s) => document.getElementById('loadingOverlay').style.display = s ? 'flex' : 'none';
 
+// --- Keyboard Shortcuts (Enter & Esc) ---
+document.addEventListener('keydown', function(e) {
+  if (e.key === "Enter") {
+    const activeTabId = document.querySelector('.tab-pane.active').id;
+    if (activeTabId === "tabRec") submitRecord();
+    if (activeTabId === "tabEdit") {
+      if (!document.getElementById('editForm').classList.contains('d-none')) saveEdit();
+      else searchUserForEdit();
+    }
+    if (activeTabId === "tabMon") getMonitor();
+  }
+  if (e.key === "Escape") infoModal.hide();
+});
+
+// --- บันทึกข้อมูล ---
 function setMode(m) {
   currentMode = m;
   document.getElementById('btnIn').className = 'mode-card text-center ' + (m==='checkin'?'active-checkin':'');
@@ -156,11 +168,12 @@ function setMode(m) {
 }
 
 async function startCamera() {
-  const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
-  scanning = true; video.srcObject = stream; video.play();
-  canvasElement.style.display = 'block';
-  document.getElementById('cameraBtn').classList.add('d-none');
-  requestAnimationFrame(tick);
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+    scanning = true; video.srcObject = stream; video.play();
+    canvasElement.style.display = 'block'; document.getElementById('cameraBtn').classList.add('d-none');
+    requestAnimationFrame(tick);
+  } catch(e) { Swal.fire('Error','เปิดกล้องไม่ได้','error'); }
 }
 
 function tick() {
@@ -168,10 +181,7 @@ function tick() {
     canvasElement.height = video.videoHeight; canvasElement.width = video.videoWidth;
     canvas.drawImage(video, 0, 0, canvasElement.width, canvasElement.height);
     let code = jsQR(canvas.getImageData(0, 0, canvasElement.width, canvasElement.height).data, canvasElement.width, canvasElement.height);
-    if (code) {
-      document.getElementById('recordId').value = code.data;
-      stopCamera(); submitRecord();
-    }
+    if (code) { document.getElementById('recordId').value = code.data; stopCamera(); submitRecord(); }
   }
   if (scanning) requestAnimationFrame(tick);
 }
@@ -193,17 +203,14 @@ async function submitRecord() {
   document.getElementById('recordId').value = '';
 }
 
+// --- Monitor ---
 async function updateStats() {
   try {
     const res = await fetch(`${API_URL}?action=getBaseMonitor`);
     const r = await res.json();
     if (r.success) {
       document.getElementById('statGrid').innerHTML = r.data.map(i => `
-        <div class="stat-box">
-          <span class="label">${i.baseName}</span>
-          <span class="value">${i.passed}</span>
-          <span class="unit">คน</span>
-        </div>`).join('');
+        <div class="stat-box"><span class="label">${i.baseName}</span><span class="value">${i.passed}</span></div>`).join('');
     }
   } catch(e) {}
 }
@@ -211,57 +218,58 @@ async function updateStats() {
 async function getMonitor() {
   const val = document.getElementById('monId').value.trim();
   if(!val) return;
-  
+  showLoad(true);
   if (val.toUpperCase() === 'AAA') {
-    showLoad(true);
     const res = await fetch(`${API_URL}?action=getAllProgress`);
     const r = await res.json();
     showLoad(false);
-    let h = `<div class="table-responsive"><table class="table table-sm table-aaa table-hover mt-2">
-             <thead class="table-light"><tr><th>ชื่อ</th><th class="text-center">ฐาน</th></tr></thead><tbody>`;
-    r.data.forEach(p => {
-      h += `<tr><td class="text-start"><span class="clickable-name" onclick="viewDetail('${p.empId}')">${p.name}</span></td>
-            <td><div class="progress"><div class="progress-bar ${p.pass==9?'bg-success':'bg-primary'}" style="width:${(p.pass/9)*100}%"></div></div><div class="text-end" style="font-size:0.6rem">${p.pass}/9</div></td></tr>`;
-    });
-    document.getElementById('monResult').innerHTML = h + '</tbody></table></div>';
-    return;
-  }
-
-  showLoad(true);
-  const res = await fetch(`${API_URL}?action=searchUser&query=${val}`);
-  const r = await res.json();
-  showLoad(false);
-  if(r.success) {
-    document.getElementById('monResult').innerHTML = `
-      <div class="p-3 bg-light rounded-4 text-start border mt-2">
-        <h6 class="fw-bold mb-1">${r.name} <span class="badge bg-primary">[${r.group}]</span></h6>
-        <div class="progress my-2"><div class="progress-bar" style="width:${(r.passedCount/9)*100}%"></div></div>
-        <small class="text-muted">ความคืบหน้า ${r.passedCount}/9 ฐาน</small>
-      </div>`;
+    if (r.success) {
+      let h = `<div class="table-responsive"><table class="table table-sm table-hover mt-1">
+               <thead class="table-light"><tr><th class="ps-2">ชื่อ-นามสกุล</th><th class="text-center">ฐาน</th></tr></thead><tbody>`;
+      r.data.forEach(p => {
+        h += `<tr onclick="viewDetail('${p.empId}')">
+                <td class="text-start ps-2 py-2"><div class="fw-bold text-navy" style="font-size:0.9rem">${p.name}</div></td>
+                <td class="py-2" style="width: 35%;"><div class="progress"><div class="progress-bar ${p.pass==9?'bg-success':'bg-primary'}" style="width:${(p.pass/9)*100}%"></div></div>
+                <div class="text-end" style="font-size:0.65rem">${p.pass}/9</div></td></tr>`;
+      });
+      document.getElementById('monResult').innerHTML = h + '</tbody></table></div>';
+    }
   } else {
-    document.getElementById('monResult').innerHTML = '<div class="text-danger p-2">ไม่พบข้อมูล</div>';
+    const res = await fetch(`${API_URL}?action=searchUser&query=${val}`);
+    const r = await res.json();
+    showLoad(false);
+    if(r.success) {
+      document.getElementById('monResult').innerHTML = `
+        <div class="p-3 bg-light rounded-4 text-start border mt-2" onclick="viewDetail('${r.empId}')" style="cursor:pointer">
+          <h6 class="fw-bold mb-1">${r.name} <span class="badge bg-primary">[${r.group}]</span></h6>
+          <div class="progress my-2"><div class="progress-bar" style="width:${(r.passedCount/9)*100}%"></div></div>
+          <small class="text-muted">ความคืบหน้า ${r.passedCount}/9 ฐาน (คลิกเพื่อดูรายละเอียด)</small>
+        </div>`;
+    } else { document.getElementById('monResult').innerHTML = '<div class="text-danger p-2 text-center">ไม่พบข้อมูล</div>'; }
   }
 }
 
 async function viewDetail(empId) {
+  if(!empId) return;
   showLoad(true);
   const res = await fetch(`${API_URL}?action=searchUser&query=${empId}`);
   const r = await res.json();
   showLoad(false);
   document.getElementById('modalBody').innerHTML = `
-    <h5 class="fw-bold text-navy mb-1">${r.name}</h5>
+    <h6 class="fw-bold text-navy mb-1" style="font-size:1.1rem">${r.name}</h6>
     <span class="badge bg-primary mb-3">${r.group}</span>
-    <div class="text-start small px-2">
-      <div class="d-flex justify-content-between mb-1"><span>รหัสพนักงาน:</span><b>${r.empId}</b></div>
-      <div class="d-flex justify-content-between mb-1"><span>แผนก:</span><b>${r.dept}</b></div>
-      <div class="d-flex justify-content-between mb-3"><span>ผ่านแล้ว:</span><b>${r.passedCount}/9 ฐาน</b></div>
+    <div class="text-start small mb-3">
+      <div class="d-flex justify-content-between border-bottom py-1"><span>รหัส:</span><b>${r.empId}</b></div>
+      <div class="d-flex justify-content-between border-bottom py-1"><span>แผนก:</span><b>${r.dept}</b></div>
+      <div class="d-flex justify-content-between py-1"><span>ความคืบหน้า:</span><b>${r.passedCount}/9 ฐาน</b></div>
     </div>
-    <div class="progress mb-3" style="height:12px"><div class="progress-bar bg-success" style="width:${(r.passedCount/9)*100}%"></div></div>
-    <button class="btn btn-navy w-100 text-white rounded-4" data-bs-dismiss="modal" style="background:var(--navy)">ปิด (ESC)</button>
+    <div class="progress mb-3" style="height:12px"><div class="progress-bar bg-success progress-bar-striped" style="width:${(r.passedCount/9)*100}%"></div></div>
+    <button class="btn btn-navy w-100 text-white rounded-3 py-2" data-bs-dismiss="modal" style="background:var(--navy)">ปิด</button>
   `;
   infoModal.show();
 }
 
+// --- แก้ไขข้อมูล ---
 async function searchUserForEdit() {
   const val = document.getElementById('editId').value.trim();
   if(!val) return;
@@ -277,7 +285,7 @@ async function searchUserForEdit() {
     document.getElementById('editId').dataset.realId = r.empId;
     document.getElementById('editSearchArea').classList.add('d-none');
     document.getElementById('editForm').classList.remove('d-none');
-  }
+  } else { Swal.fire('ผิดพลาด', 'ไม่พบรหัสพนักงาน', 'error'); }
 }
 
 async function saveEdit() {
@@ -296,21 +304,9 @@ async function saveEdit() {
   resetEdit();
 }
 
+function clearMon() { document.getElementById('monId').value = ''; document.getElementById('monResult').innerHTML = ''; updateStats(); }
 function resetEdit() { document.getElementById('editSearchArea').classList.remove('d-none'); document.getElementById('editForm').classList.add('d-none'); document.getElementById('editId').value = ''; }
 function resetAll() { stopCamera(); document.getElementById('recordId').value = ''; }
-function clearMon() { document.getElementById('monId').value = ''; document.getElementById('monResult').innerHTML = ''; }
-
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') { infoModal.hide(); }
-  if (e.key === 'Enter') {
-    const activeTab = document.querySelector('.nav-link.active').innerText;
-    if(activeTab === 'บันทึก') submitRecord();
-    else if(activeTab === 'แก้ไข') (document.getElementById('editForm').classList.contains('d-none')) ? searchUserForEdit() : saveEdit();
-    else getMonitor();
-  }
-});
-
-setInterval(() => { if(document.querySelector('#tabMon.active')) { updateStats(); if(document.getElementById('monId').value.toUpperCase()==='AAA') getMonitor(); } }, 60000);
 window.onload = updateStats;
 </script>
 </body>
