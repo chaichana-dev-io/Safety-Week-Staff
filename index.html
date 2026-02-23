@@ -70,12 +70,12 @@
         </div>
         <div id="editForm" class="d-none">
           <h5 class="fw-bold mb-3 text-primary">แก้ไขข้อมูลพนักงาน</h5>
-          <div class="mb-3"><label class="small text-muted">ชื่อ-นามสกุล</label><input type="text" id="nameBox" class="form-control p-3 rounded-4 border-2"></div>
+          <div class="mb-3"><label class="small text-muted">ชื่อ-นามสกุล</label><input type="text" id="nameBox" class="form-control p-3 rounded-4 border-2" autocomplete="off"></div>
           <div class="row g-2 mb-3">
-            <div class="col-6"><label class="small text-muted">แผนก</label><input type="text" id="deptBox" class="form-control p-3 rounded-4 border-2"></div>
-            <div class="col-6"><label class="small text-muted">ฝ่าย</label><input type="text" id="sectBox" class="form-control p-3 rounded-4 border-2"></div>
+            <div class="col-6"><label class="small text-muted">แผนก</label><input type="text" id="deptBox" class="form-control p-3 rounded-4 border-2" autocomplete="off"></div>
+            <div class="col-6"><label class="small text-muted">ฝ่าย</label><input type="text" id="sectBox" class="form-control p-3 rounded-4 border-2" autocomplete="off"></div>
           </div>
-          <div class="mb-4"><label class="small text-muted">อีเมล</label><input type="email" id="emailBox" class="form-control p-3 rounded-4 border-2"></div>
+          <div class="mb-4"><label class="small text-muted">อีเมล</label><input type="email" id="emailBox" class="form-control p-3 rounded-4 border-2" autocomplete="off"></div>
           <div class="row g-2">
             <div class="col-6"><button class="btn btn-light btn-action" onclick="resetEdit()">ยกเลิก (ESC)</button></div>
             <div class="col-6"><button class="btn btn-primary btn-action" onclick="saveEdit()">บันทึกข้อมูล (Enter)</button></div>
@@ -86,7 +86,6 @@
 
     <div class="tab-pane fade" id="tabMon">
       <div class="row row-cols-3 g-2 mt-4" id="statGrid"></div>
-      
       <div class="card main-card p-4 mt-4 text-center">
         <h6 class="fw-bold mb-3 text-muted">ตรวจสอบสถานะรายบุคคล</h6>
         <div class="d-flex gap-2 mb-3">
@@ -105,7 +104,6 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-// API URL ใหม่ที่นายส่งมา
 const API_URL = "https://script.google.com/macros/s/AKfycbxhiVTC0uqVOsvGuUqfUX3rJkAnS2htEODju9MvaMuCo45PTTW5QDgUjCzFJCYrautScA/exec";
 
 let video = document.createElement("video");
@@ -281,10 +279,23 @@ function resetEdit() {
   document.getElementById('editSearchArea').classList.remove('d-none');
   document.getElementById('editForm').classList.add('d-none');
   document.getElementById('editId').value = '';
+  // ล้างค่าข้อมูลเดิมทั้งหมด
+  document.getElementById('nameBox').value = '';
+  document.getElementById('deptBox').value = '';
+  document.getElementById('sectBox').value = '';
+  document.getElementById('emailBox').value = '';
 }
 
-function clearMon() { document.getElementById('monId').value = ''; document.getElementById('monResult').innerHTML = ''; }
-function resetAll() { stopCamera(); document.getElementById('recordId').value = ''; }
+function clearMon() { 
+  document.getElementById('monId').value = ''; 
+  document.getElementById('monResult').innerHTML = ''; 
+  document.getElementById('monId').focus();
+}
+
+function resetAll() { 
+  stopCamera(); 
+  document.getElementById('recordId').value = ''; 
+}
 
 document.addEventListener('keydown', (e) => {
   const activeTab = document.querySelector('.tab-pane.active').id;
@@ -293,13 +304,17 @@ document.addEventListener('keydown', (e) => {
     if (activeTab === 'tabEdit') (document.getElementById('editForm').classList.contains('d-none')) ? searchUser() : saveEdit();
     if (activeTab === 'tabMon') getMonitor();
   }
+  // เพิ่มการตรวจจับ ESC ในทุกหน้า
+  if (e.key === 'Escape') {
+    if (activeTab === 'tabRec') resetAll();
+    if (activeTab === 'tabEdit') resetEdit();
+    if (activeTab === 'tabMon') clearMon();
+  }
 });
 
-// Auto Refresh Monitor ทุก 1 นาที
 setInterval(() => {
   if (document.getElementById('tabMon').classList.contains('active')) updateStats();
 }, 60000);
-
 </script>
 </body>
 </html>
