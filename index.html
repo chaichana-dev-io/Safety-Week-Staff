@@ -145,20 +145,31 @@ function setMode(m) {
 async function submitRecord() {
   let id = document.getElementById('recordId').value.trim();
   if (!id || !currentMode) return;
-  id = formatID(id);
-  Swal.fire({ title: 'กำลังบันทึก...', didOpen: () => Swal.showLoading() });
+  
+  Swal.fire({ title: 'กำลังประมวลผล...', didOpen: () => Swal.showLoading() });
+  
   const action = (currentMode === 'checkin') ? 'confirmCheckIn' : 'checkoutAction';
+  const finalUrl = `${API_URL}?action=${action}&empId=${encodeURIComponent(id)}`;
+
   try {
-    const res = await fetch(`${API_URL}?action=${action}&empId=${id}`);
+    const res = await fetch(finalUrl);
+    
+    // เช็คว่า Google บล็อกเราไหม
+    if (res.status === 401) {
+      throw new Error("สิทธิ์การเข้าถึงถูกปฏิเสธ (401): กรุณาตั้งค่า Deploy เป็น Anyone");
+    }
+
     const r = await res.json();
     if (r.success) {
       Swal.fire({ icon: 'success', title: 'สำเร็จ', text: r.message, timer: 2000 });
       document.getElementById('recordId').value = '';
-      if(activeTab === 'tabMon') updateStats(); // อัปเดตยอดถ้าหน้าจอเปิดอยู่
-    } else {
-      Swal.fire({ icon: 'error', title: 'ไม่สำเร็จ', text: r.message });
+    } else { 
+      Swal.fire({ icon: 'error', title: 'ผิดพลาด', text: r.message }); 
     }
-  } catch (e) { Swal.fire('Error', 'การเชื่อมต่อล้มเหลว', 'error'); }
+  } catch (e) { 
+    Swal.fire('การเชื่อมต่อล้มเหลว', e.message, 'error');
+    console.error("Fetch Error:", e);
+  }
 }
 
 // --- EDIT LOGIC ---
