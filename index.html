@@ -22,6 +22,7 @@
     .mode-card { cursor: pointer; border: 2px solid #edf2f7; border-radius: 25px; padding: 20px; transition: 0.3s; }
     .active-checkin { border-color: var(--blue); background: #eff6ff; }
     .active-checkout { border-color: var(--red); background: #fef2f2; }
+    #canvas { width: 100%; border-radius: 20px; display: none; background: #000; transform: scaleX(-1); }
     .stat-box { min-height: 100px; display: flex; flex-direction: column; justify-content: center; border: 1px solid #eee; transition: 0.3s; background: white; border-radius: 20px !important; }
     .progress { height: 10px; border-radius: 10px; background-color: #e9ecef; }
     #loadingOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.7); display: none; justify-content: center; align-items: center; z-index: 9999; }
@@ -52,7 +53,9 @@
           <div class="col-6"><div id="btnIn" class="mode-card" onclick="setMode('checkin')"><i class="bi bi-box-arrow-in-right fs-1 text-primary"></i><div class="fw-bold mt-2">CHECK-IN</div></div></div>
           <div class="col-6"><div id="btnOut" class="mode-card" onclick="setMode('checkout')"><i class="bi bi-box-arrow-left fs-1 text-danger"></i><div class="fw-bold mt-2">CHECK-OUT</div></div></div>
         </div>
-        <div id="actionArea" class="d-none">
+        <div id="actionArea" class="d-none text-center">
+          <canvas id="canvas" class="mb-3"></canvas>
+          <button id="cameraBtn" class="btn btn-dark btn-action mb-3" onclick="startCamera()"><i class="bi bi-camera"></i> เปิดกล้องสแกน QR</button>
           <input type="text" id="recordId" class="input-custom mb-3" placeholder="กรอกรหัส หรือ สแกน QR" autocomplete="off">
           <button class="btn btn-primary btn-action" onclick="submitRecord()">ยืนยันบันทึก (Enter)</button>
         </div>
@@ -67,12 +70,12 @@
         </div>
         <div id="editForm" class="d-none">
           <h5 class="fw-bold mb-3 text-primary">แก้ไขข้อมูลพนักงาน</h5>
-          <div class="mb-3"><label class="small text-muted">ชื่อ-นามสกุล</label><input type="text" id="nameBox" class="form-control p-3 rounded-4 border-2" autocomplete="off"></div>
+          <div class="mb-3"><label class="small text-muted">ชื่อ-นามสกุล</label><input type="text" id="nameBox" class="form-control p-3 rounded-4 border-2"></div>
           <div class="row g-2 mb-3">
-            <div class="col-6"><label class="small text-muted">แผนก</label><input type="text" id="deptBox" class="form-control p-3 rounded-4 border-2" autocomplete="off"></div>
-            <div class="col-6"><label class="small text-muted">ฝ่าย</label><input type="text" id="sectBox" class="form-control p-3 rounded-4 border-2" autocomplete="off"></div>
+            <div class="col-6"><label class="small text-muted">แผนก</label><input type="text" id="deptBox" class="form-control p-3 rounded-4 border-2"></div>
+            <div class="col-6"><label class="small text-muted">ฝ่าย</label><input type="text" id="sectBox" class="form-control p-3 rounded-4 border-2"></div>
           </div>
-          <div class="mb-4"><label class="small text-muted">อีเมล</label><input type="email" id="emailBox" class="form-control p-3 rounded-4 border-2" autocomplete="off"></div>
+          <div class="mb-4"><label class="small text-muted">อีเมล</label><input type="email" id="emailBox" class="form-control p-3 rounded-4 border-2"></div>
           <div class="row g-2">
             <div class="col-6"><button class="btn btn-light btn-action" onclick="resetEdit()">ยกเลิก (ESC)</button></div>
             <div class="col-6"><button class="btn btn-primary btn-action" onclick="saveEdit()">บันทึกข้อมูล (Enter)</button></div>
@@ -82,14 +85,9 @@
     </div>
 
     <div class="tab-pane fade" id="tabMon">
-      <div class="text-center mt-4">
-        <h6 class="fw-bold text-navy mb-3"><i class="bi bi-people-fill"></i> จำนวนสมาชิกแยกตามกลุ่ม (Group 1-9)</h6>
-      </div>
-      <div class="row row-cols-3 g-2" id="statGrid">
-        </div>
-      
+      <div class="text-center mt-4"><h6 class="fw-bold text-navy mb-3"><i class="bi bi-people-fill"></i> จำนวนสมาชิกแยกตามกลุ่ม (Group 1-9)</h6></div>
+      <div class="row row-cols-3 g-2" id="statGrid"></div>
       <hr class="my-4 opacity-25">
-
       <div class="card main-card p-4 text-center">
         <h6 class="fw-bold mb-3 text-muted">ตรวจสอบสถานะรายบุคคล</h6>
         <div class="d-flex gap-2 mb-3">
@@ -103,16 +101,20 @@
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-// *** อย่าลืมวาง URL จากการ Deploy ล่าสุดตรงนี้ ***
 const API_URL = "https://script.google.com/macros/s/AKfycbxhiVTC0uqVOsvGuUqfUX3rJkAnS2htEODju9MvaMuCo45PTTW5QDgUjCzFJCYrautScA/exec";
 
+let video = document.createElement("video");
+let canvasElement = document.getElementById("canvas");
+let canvas = canvasElement.getContext("2d", { willReadFrequently: true });
 let currentMode = null;
-const showLoad = (show) => document.getElementById('loadingOverlay').style.display = show ? 'flex' : 'none';
+let scanning = false;
 
+const showLoad = (show) => document.getElementById('loadingOverlay').style.display = show ? 'flex' : 'none';
 const formatID = (id) => {
   let s = id.toString().trim();
   if (/^\d+$/.test(s) && s.length <= 6) return s.padStart(6, '0');
@@ -127,7 +129,59 @@ function setMode(m) {
   document.getElementById('recordId').focus();
 }
 
-// 1. ฟังก์ชันดึงยอด 3x3
+// --- ฟังก์ชันกล้อง ---
+async function startCamera() {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+    scanning = true;
+    video.srcObject = stream;
+    video.setAttribute("playsinline", true);
+    video.play();
+    canvasElement.style.display = 'block';
+    document.getElementById('cameraBtn').classList.add('d-none');
+    requestAnimationFrame(tick);
+  } catch (e) { Swal.fire('Error', 'เปิดกล้องไม่ได้', 'error'); }
+}
+
+function stopCamera() {
+  scanning = false;
+  if (video.srcObject) video.srcObject.getTracks().forEach(t => t.stop());
+  canvasElement.style.display = 'none';
+  document.getElementById('cameraBtn').classList.remove('d-none');
+}
+
+function tick() {
+  if (video.readyState === video.HAVE_ENOUGH_DATA && scanning) {
+    canvasElement.height = video.videoHeight;
+    canvasElement.width = video.videoWidth;
+    canvas.drawImage(video, 0, 0, canvasElement.width, canvasElement.height);
+    let code = jsQR(canvas.getImageData(0, 0, canvasElement.width, canvasElement.height).data, canvasElement.width, canvasElement.height);
+    if (code) {
+      document.getElementById('recordId').value = code.data;
+      stopCamera();
+      submitRecord();
+    }
+  }
+  if (scanning) requestAnimationFrame(tick);
+}
+
+// --- ฟังก์ชันหลัก ---
+async function submitRecord() {
+  let rawVal = document.getElementById('recordId').value.trim();
+  if (!rawVal || !currentMode) return;
+  const id = formatID(rawVal);
+  showLoad(true);
+  const action = (currentMode === 'checkin') ? 'confirmCheckIn' : 'checkoutAction';
+  try {
+    const res = await fetch(`${API_URL}?action=${action}&empId=${encodeURIComponent(id)}`);
+    const r = await res.json();
+    showLoad(false);
+    Swal.fire({ icon: r.success?'success':'warning', title: r.success?'สำเร็จ':'แจ้งเตือน', html: r.message.replace(/\n/g, '<br>') });
+    document.getElementById('recordId').value = '';
+    updateStats();
+  } catch (e) { showLoad(false); }
+}
+
 async function updateStats() {
   const grid = document.getElementById('statGrid');
   try {
@@ -135,18 +189,15 @@ async function updateStats() {
     const r = await res.json();
     if (r.success) {
       grid.innerHTML = r.data.map(item => `
-        <div class="col">
-          <div class="stat-box shadow-sm border text-center" style="border-top: 4px solid var(--navy) !important">
-            <div class="small fw-bold text-muted">${item.baseName}</div>
-            <div class="fs-2 fw-bold text-primary">${item.passed || 0}</div>
-            <div style="font-size:0.6rem" class="text-muted">คน</div>
-          </div>
-        </div>`).join('');
+        <div class="col"><div class="stat-box shadow-sm border text-center" style="border-top: 4px solid var(--navy) !important">
+          <div class="small fw-bold text-muted">${item.baseName}</div>
+          <div class="fs-2 fw-bold text-primary">${item.passed || 0}</div>
+          <div style="font-size:0.6rem" class="text-muted">คน</div>
+        </div></div>`).join('');
     }
   } catch (e) { console.error("Update Stats Error"); }
 }
 
-// 2. ฟังก์ชันค้นหารายบุคคล (และ AAA ลับ)
 async function getMonitor() {
   let rawVal = document.getElementById('monId').value.trim();
   if (!rawVal) return;
@@ -177,38 +228,11 @@ async function getMonitor() {
     const r = await res.json();
     showLoad(false);
     if (r.success) {
-      resultDiv.innerHTML = `
-        <div class="p-3 bg-light rounded-4 mt-3 text-start border shadow-sm">
-          <div class="d-flex justify-content-between align-items-center"><strong>${r.name}</strong><span class="badge bg-navy">${r.group}</span></div>
-          <div class="progress my-2"><div class="progress-bar" style="width:${(r.passedCount/9)*100}%"></div></div>
-          <div class="text-end small">ผ่านแล้ว ${r.passedCount}/9 ฐาน</div>
-        </div>`;
+      resultDiv.innerHTML = `<div class="p-3 bg-light rounded-4 mt-3 text-start border shadow-sm"><strong>${r.name}</strong><br><span class="badge bg-navy">${r.group}</span><div class="progress my-2"><div class="progress-bar" style="width:${(r.passedCount/9)*100}%"></div></div><div class="text-end small">${r.passedCount}/9 ฐาน</div></div>`;
     } else { resultDiv.innerHTML = '<div class="text-danger mt-2">ไม่พบข้อมูล</div>'; }
   } catch (e) { showLoad(false); }
 }
 
-// 3. ฟังก์ชันบันทึก Check-in/Out
-async function submitRecord() {
-  let rawVal = document.getElementById('recordId').value.trim();
-  if (!rawVal || !currentMode) return;
-  const id = formatID(rawVal);
-  showLoad(true);
-  const action = (currentMode === 'checkin') ? 'confirmCheckIn' : 'checkoutAction';
-  try {
-    const res = await fetch(`${API_URL}?action=${action}&empId=${encodeURIComponent(id)}`);
-    const r = await res.json();
-    showLoad(false);
-    Swal.fire({ 
-      icon: r.success ? 'success' : 'warning', 
-      title: r.success ? 'สำเร็จ!' : 'แจ้งเตือน', 
-      html: r.message.replace(/\n/g, '<br>')
-    });
-    document.getElementById('recordId').value = '';
-    updateStats(); // อัปเดต 3x3 ทันทีหลังบันทึก
-  } catch (e) { showLoad(false); }
-}
-
-// 4. ฟังก์ชันจัดการหน้า Edit
 async function searchUser() {
   let rawVal = document.getElementById('editId').value.trim();
   if (!rawVal) return;
@@ -231,41 +255,15 @@ async function searchUser() {
 }
 
 async function saveEdit() {
-  const params = new URLSearchParams({
-    action: 'updateUser',
-    empId: document.getElementById('editId').dataset.realId,
-    name: document.getElementById('nameBox').value,
-    dept: document.getElementById('deptBox').value,
-    sect: document.getElementById('sectBox').value,
-    email: document.getElementById('emailBox').value
-  });
+  const params = new URLSearchParams({ action:'updateUser', empId: document.getElementById('editId').dataset.realId, name: document.getElementById('nameBox').value, dept: document.getElementById('deptBox').value, sect: document.getElementById('sectBox').value, email: document.getElementById('emailBox').value });
   showLoad(true);
-  try {
-    const res = await fetch(`${API_URL}?${params.toString()}`);
-    showLoad(false);
-    Swal.fire('สำเร็จ', 'อัปเดตข้อมูลแล้ว', 'success');
-    resetEdit();
-  } catch (e) { showLoad(false); }
+  try { await fetch(`${API_URL}?${params.toString()}`); showLoad(false); Swal.fire('สำเร็จ', 'อัปเดตแล้ว', 'success'); resetEdit(); } catch (e) { showLoad(false); }
 }
 
-function clearMon() {
-  document.getElementById('monId').value = '';
-  document.getElementById('monResult').innerHTML = '';
-  updateStats();
-}
+function clearMon() { document.getElementById('monId').value = ''; document.getElementById('monResult').innerHTML = ''; updateStats(); }
+function resetEdit() { document.getElementById('editSearchArea').classList.remove('d-none'); document.getElementById('editForm').classList.add('d-none'); document.getElementById('editId').value = ''; }
+function resetAll() { stopCamera(); document.getElementById('recordId').value = ''; }
 
-function resetEdit() {
-  document.getElementById('editSearchArea').classList.remove('d-none');
-  document.getElementById('editForm').classList.add('d-none');
-  document.getElementById('editId').value = '';
-  ['nameBox','deptBox','sectBox','emailBox'].forEach(id => document.getElementById(id).value = '');
-}
-
-function resetAll() {
-  document.getElementById('recordId').value = '';
-}
-
-// คีย์บอร์ด Shortcut
 document.addEventListener('keydown', (e) => {
   const activeTab = document.querySelector('.tab-pane.active').id;
   if (e.key === 'Enter') {
@@ -273,21 +271,10 @@ document.addEventListener('keydown', (e) => {
     if (activeTab === 'tabEdit') (document.getElementById('editForm').classList.contains('d-none')) ? searchUser() : saveEdit();
     if (activeTab === 'tabMon') getMonitor();
   }
-  if (e.key === 'Escape') {
-    if (activeTab === 'tabMon') clearMon();
-    if (activeTab === 'tabEdit') resetEdit();
-  }
+  if (e.key === 'Escape') { if (activeTab === 'tabMon') clearMon(); if (activeTab === 'tabEdit') resetEdit(); if (activeTab === 'tabRec') resetAll(); }
 });
 
-// Auto Refresh ทุก 1 นาที
-setInterval(() => {
-  if (document.querySelector('#tabMon.active')) {
-    updateStats();
-    if (document.getElementById('monId').value.toUpperCase() === 'AAA') getMonitor();
-  }
-}, 60000);
-
-// โหลดครั้งแรก
+setInterval(() => { if (document.querySelector('#tabMon.active')) { updateStats(); if (document.getElementById('monId').value.toUpperCase()==='AAA') getMonitor(); } }, 60000);
 window.onload = updateStats;
 </script>
 </body>
