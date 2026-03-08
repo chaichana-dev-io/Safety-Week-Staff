@@ -202,7 +202,8 @@ async function viewDetail(empId) {
     const r = await res.json();
     showLoad(false);
     
-    let displayGroup = (r.group || "ยังไม่เช็คอิน").replace(/Group/g, "ฐาน");
+    // ตรงนี้ครับ: แก้ไขให้แสดงเป็น กลุ่ม แทน ฐาน
+    let displayGroup = (r.group || "ยังไม่เช็คอิน").replace(/Group/g, "กลุ่ม").replace(/ฐาน/g, "กลุ่ม");
     let baseHtml = '';
     for (let i = 0; i < 9; i++) {
       const isPassed = r.details && r.details[i] === "ผ่าน";
@@ -280,7 +281,8 @@ async function updateStats() {
     const r = await res.json();
     if (r.success) {
       document.getElementById('statGrid').innerHTML = r.data.map(i => {
-        let shortName = i.baseName.replace("ฐานที่", "").trim();
+        // ตรงนี้ครับ: แก้ไขให้หัวข้อใน Grid แสดงคำว่า "กลุ่ม"
+        let shortName = i.baseName.replace("ฐานที่", "กลุ่ม").replace("ฐาน", "กลุ่ม").trim();
         return `<div class="stat-box"><span class="label">${shortName}</span><span class="value">${i.passed}</span></div>`;
       }).join('');
     }
