@@ -47,12 +47,9 @@
     #loadingOverlay { position: fixed; inset: 0; background: rgba(255,255,255,0.8); display: none; justify-content: center; align-items: center; z-index: 9999; backdrop-filter: blur(2px); }
     #canvas { width: 100%; border-radius: 12px; display: none; background: #000; transform: scaleX(-1); margin-top: 10px; }
 
-    /* AAA Table */
-    .table-aaa { border-collapse: separate; border-spacing: 0; width: 100%; }
-    .table-aaa tr { transition: background 0.2s; cursor: pointer; }
-    .table-aaa td { padding: 14px 10px; border-bottom: 1px solid #edf2f7; vertical-align: middle; }
-    .table-aaa tr:nth-child(even) { background-color: #f8fafc; }
-    .table-aaa tr:hover { background-color: #e2e8f0 !important; }
+    /* Attendee Card Style for Staff */
+    .attendee-card { cursor: pointer; transition: all 0.2s; border: 2px solid transparent; }
+    .attendee-card:active { transform: scale(0.98); background-color: #f8fafc !important; border-color: var(--blue); }
   </style>
 </head>
 <body>
@@ -69,7 +66,7 @@
     <ul class="nav nav-pills" id="mainTabs">
       <li class="nav-item"><button class="nav-link active" data-bs-toggle="pill" data-bs-target="#tabRec" onclick="resetAll()"><i class="bi bi-qr-code-scan"></i> บันทึก</button></li>
       <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tabEdit" onclick="resetEdit()"><i class="bi bi-pencil-square"></i> แก้ไข</button></li>
-      <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tabMon" onclick="clearMon()"><i class="bi bi-search"></i> Monitor</button></li>
+      <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tabMon" onclick="loadMonitorTab()"><i class="bi bi-search"></i> Monitor</button></li>
     </ul>
   </div>
 
@@ -117,13 +114,20 @@
 
     <div class="tab-pane fade" id="tabMon">
       <div class="stat-grid" id="statGrid"></div>
+      
       <div class="card main-card p-3">
-        <input type="text" id="monId" class="input-custom mb-3" placeholder="ระบุรหัสพนักงาน" autocomplete="off" onkeydown="handleKey(event, 'monitor')">
-        <div class="row g-2">
-           <div class="col-8"><button class="btn btn-primary w-100 btn-action shadow" onclick="getMonitor()">ค้นหา (Enter)</button></div>
-           <div class="col-4"><button class="btn btn-outline-danger w-100 btn-action" onclick="clearMon()">ล้าง</button></div>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h6 class="fw-bold mb-0 text-navy"><i class="bi bi-people-fill"></i> ผู้เข้าร่วม (เช็คอินแล้ว)</h6>
+          <span class="badge bg-light text-dark border" id="totalAttendeesBadge">0 คน</span>
         </div>
-        <div id="monResult" class="mt-3"></div>
+        
+        <input type="text" id="filterInput" class="input-custom mb-3" style="font-size: 0.95rem; padding: 10px;" placeholder="พิมพ์ชื่อ หรือ รหัสพนักงาน..." autocomplete="off" oninput="filterAttendeesList()">
+        
+        <div id="attendeesList" class="d-flex flex-column gap-2 mb-2">
+          </div>
+        
+        <div id="paginationControls" class="d-flex justify-content-between align-items-center mt-2 pt-2 border-top">
+          </div>
       </div>
     </div>
   </div>
@@ -142,13 +146,19 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
+// *** API URL เดิมของ Staff System ***
 const API_URL = "https://script.google.com/macros/s/AKfycbx_vllXGKpDuUHLLiw3NGXHUL1Mi9KQbrISC3unoVB1ms-rqwQc36m1DTrazKoWY56m9g/exec";
 const infoModal = new bootstrap.Modal(document.getElementById('infoModal'));
 let video = document.createElement("video");
 let canvasElement = document.getElementById("canvas");
 let canvas = canvasElement.getContext("2d", { willReadFrequently: true });
 let currentMode = null, scanning = false;
-let globalBaseNames = [];
+
+// ตัวแปรสำหรับระบบ Pagination หน้า Monitor
+let allAttendees = [];
+let filteredAttendees = [];
+let currentPage = 1;
+const itemsPerPage = 20;
 
 const showLoad = (s) => document.getElementById('loadingOverlay').style.display = s ? 'flex' : 'none';
 
@@ -156,44 +166,98 @@ function handleKey(e, type) {
   if (e.key === "Enter") {
     if (type === 'record') submitRecord();
     if (type === 'searchEdit') searchUserForEdit();
-    if (type === 'monitor') getMonitor();
   }
 }
 
-async function getMonitor() {
-  const val = document.getElementById('monId').value.trim();
-  if(!val) return;
+// --- โหลดข้อมูลหน้า Monitor (รายชื่อ + ตาราง 3x3) ---
+async function loadMonitorTab() {
+  updateStats(); // โหลดตาราง 3x3 เหมือนเดิม
   showLoad(true);
   try {
-    if (val.toUpperCase() === 'AAA') {
-      const res = await fetch(`${API_URL}?action=getAllProgress`);
-      const r = await res.json();
-      showLoad(false);
-      if (r.success) {
-        let h = `<div class="table-responsive rounded-3 border"><table class="table-aaa"><tbody>`;
-        r.data.forEach(p => {
-          h += `<tr onclick="viewDetail('${p.empId}')">
-                  <td class="ps-3">
-                    <div class="fw-bold text-navy" style="font-size: 0.95rem;">${p.name}</div>
-                    <small class="text-muted">ID: ${p.empId}</small>
-                  </td>
-                  <td class="text-end pe-3">
-                    <span class="badge ${p.pass==9?'bg-success':'bg-light text-dark border'}" style="border-radius:50px">${p.pass}/9 ฐาน</span>
-                  </td>
-                </tr>`;
-        });
-        document.getElementById('monResult').innerHTML = h + '</tbody></table></div>';
-      }
-    } else {
-      const res = await fetch(`${API_URL}?action=searchUser&query=${val}`);
-      const r = await res.json();
-      showLoad(false);
-      if(r.success) viewDetail(r.empId);
-      else Swal.fire("ไม่พบข้อมูล", "ตรวจสอบรหัสพนักงานอีกครั้ง", "error");
+    // ใช้ฟังก์ชันดึงรายชื่อคนเช็คอินทั้งหมดมาทำเป็น List
+    const res = await fetch(`${API_URL}?action=getAllProgress`);
+    const r = await res.json();
+    if (r.success) {
+      allAttendees = r.data;
+      document.getElementById('totalAttendeesBadge').innerText = allAttendees.length + " คน";
+      document.getElementById('filterInput').value = '';
+      filteredAttendees = [...allAttendees];
+      currentPage = 1;
+      renderAttendeesList();
     }
-  } catch(e) { showLoad(false); }
+  } catch(e) { console.error("Error loading monitor:", e); }
+  showLoad(false);
 }
 
+// --- ค้นหา/กรอง รายชื่อ ---
+function filterAttendeesList() {
+  const term = document.getElementById('filterInput').value.toLowerCase().trim();
+  if(!term) {
+    filteredAttendees = [...allAttendees];
+  } else {
+    filteredAttendees = allAttendees.filter(p => 
+      (p.name && p.name.toLowerCase().includes(term)) || 
+      (p.empId && p.empId.includes(term))
+    );
+  }
+  currentPage = 1;
+  renderAttendeesList();
+}
+
+// --- วาดรายการ List หน้า Monitor ---
+function renderAttendeesList() {
+  const listContainer = document.getElementById('attendeesList');
+  const pageControls = document.getElementById('paginationControls');
+
+  if (filteredAttendees.length === 0) {
+    listContainer.innerHTML = `<div class="text-center text-muted p-3 border rounded-3 bg-white small">ไม่พบข้อมูลรายชื่อพนักงานที่ Check-in</div>`;
+    pageControls.innerHTML = '';
+    return;
+  }
+
+  const totalPages = Math.ceil(filteredAttendees.length / itemsPerPage);
+  if (currentPage > totalPages) currentPage = totalPages;
+  if (currentPage < 1) currentPage = 1;
+
+  const startIdx = (currentPage - 1) * itemsPerPage;
+  const endIdx = startIdx + itemsPerPage;
+  const currentData = filteredAttendees.slice(startIdx, endIdx);
+
+  let html = '';
+  currentData.forEach(p => {
+    const passBadge = p.pass == 9 
+      ? `<span class="badge bg-success rounded-pill px-2 py-1"><i class="bi bi-check-circle-fill"></i> จบแล้ว</span>` 
+      : `<span class="badge bg-light text-dark border rounded-pill px-2 py-1">${p.pass}/9 ฐาน</span>`;
+      
+    html += `
+      <div class="p-2 border rounded-3 bg-white shadow-sm d-flex justify-content-between align-items-center attendee-card" onclick="viewDetail('${p.empId}')">
+        <div>
+          <div class="fw-bold text-navy" style="font-size: 0.95rem;">${p.name}</div>
+          <div class="small text-muted mt-1">
+            <span class="badge bg-secondary rounded-pill fw-normal" style="font-size:0.7rem">ID: ${p.empId}</span>
+          </div>
+        </div>
+        <div class="text-end">
+          ${passBadge}
+        </div>
+      </div>
+    `;
+  });
+  listContainer.innerHTML = html;
+
+  pageControls.innerHTML = `
+    <button class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-bold" onclick="changePage(-1)" ${currentPage === 1 ? 'disabled' : ''}>&lt; ก่อนหน้า</button>
+    <span class="small fw-bold text-muted">${currentPage} / ${totalPages}</span>
+    <button class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-bold" onclick="changePage(1)" ${currentPage === totalPages ? 'disabled' : ''}>ถัดไป &gt;</button>
+  `;
+}
+
+function changePage(dir) {
+  currentPage += dir;
+  renderAttendeesList();
+}
+
+// --- ดูรายละเอียดรายบุคคล (Popup เดิม) ---
 async function viewDetail(empId) {
   if(!empId) return;
   showLoad(true);
@@ -202,7 +266,7 @@ async function viewDetail(empId) {
     const r = await res.json();
     showLoad(false);
     
-    // ตรงนี้ครับ: แก้ไขให้แสดงเป็น กลุ่ม แทน ฐาน
+    // แสดงเป็นกลุ่มเหมือนเดิมใน Badge สังกัด แต่ฐานกิจกรรมให้โชว์คำว่า ฐาน
     let displayGroup = (r.group || "ยังไม่เช็คอิน").replace(/Group/g, "กลุ่ม").replace(/ฐาน/g, "กลุ่ม");
     let baseHtml = '';
     for (let i = 0; i < 9; i++) {
@@ -232,6 +296,7 @@ async function viewDetail(empId) {
   } catch(e) { showLoad(false); }
 }
 
+// --- ฟังก์ชันอื่นๆ คงเดิม 100% ---
 async function submitRecord() {
   const id = document.getElementById('recordId').value.trim();
   if(!id || !currentMode) return;
@@ -269,19 +334,12 @@ function resetEdit() {
   document.getElementById('editId').value = '';
 }
 
-function clearMon() {
-  document.getElementById('monId').value = '';
-  document.getElementById('monResult').innerHTML = '';
-  updateStats();
-}
-
 async function updateStats() {
   try {
     const res = await fetch(`${API_URL}?action=getBaseMonitor`);
     const r = await res.json();
     if (r.success) {
       document.getElementById('statGrid').innerHTML = r.data.map(i => {
-        // ตรงนี้ครับ: แก้ไขให้หัวข้อใน Grid แสดงคำว่า "กลุ่ม"
         let shortName = i.baseName.replace("ฐานที่", "กลุ่ม").replace("ฐาน", "กลุ่ม").trim();
         return `<div class="stat-box"><span class="label">${shortName}</span><span class="value">${i.passed}</span></div>`;
       }).join('');
